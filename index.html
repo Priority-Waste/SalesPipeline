@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Priority Pipeline</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" />
+<style>
+  :root {
+    --yellow: #FFC20E;
+    --yellow-soft: #FFD752;
+    --black: #000000;
+    --bg: #0d0d0d;
+    --panel: #161616;
+    --panel-2: #1f1f1f;
+    --panel-3: #262626;
+    --border: #2d2d2d;
+    --border-strong: #3a3a3a;
+    --text: #e8e8e8;
+    --text-dim: #999999;
+    --text-muted: #666666;
+    --red: #e74c3c;
+    --red-bg: #1f0a0a;
+    --green: #27ae60;
+    --green-bright: #2ecc71;
+    --green-bg: #0a1f12;
+    --orange: #e67e22;
+
+    /* Stage colors (tuned for dark theme) */
+    --st-lead: #e67e22;
+    --st-qual: #9b59b6;
+    --st-prop: #3498db;
+    --st-neg: #e74c3c;
+    --st-won: #2ecc71;
+    --st-muni: #7f8c8d;
+    --st-issue: #4a5568;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 13px; -webkit-font-smoothing: antialiased; }
+  .display { font-family: 'Oswald', sans-serif; letter-spacing: 0.01em; }
+
+  /* TOP BAR */
+  .top-bar {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 18px; background: var(--panel); border-bottom: 1px solid var(--border-strong);
+    gap: 16px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .brand-block { display: flex; align-items: center; gap: 12px; }
+  .brand-mark { width: 38px; height: 38px; background: var(--yellow); color: var(--black); display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 900; }
+  .brand-name { font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); line-height: 1; letter-spacing: 0.06em; }
+  .brand-sub { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.22em; font-weight: 600; margin-top: 4px; }
+
+  .view-tabs { display: flex; gap: 4px; }
+  .vtab {
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border-strong);
+    padding: 7px 14px; font-family: 'Oswald', sans-serif; font-weight: 700;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .vtab:hover { background: var(--panel-2); color: var(--text); }
+  .vtab.active { background: var(--yellow); color: var(--black); border-color: var(--yellow); }
+
+  .top-actions { display: flex; gap: 6px; align-items: center; }
+  .save-indicator {
+    font-size: 10px; color: var(--text-muted); font-weight: 600;
+    padding: 4px 10px; border: 1px solid var(--border); background: var(--panel-2);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .save-indicator .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-bright); }
+  .save-indicator.saving .dot { background: var(--orange); }
+  .save-indicator.error .dot { background: var(--red); }
+
+  .btn {
+    background: var(--panel-2); color: var(--text-dim);
+    border: 1px solid var(--border-strong); cursor: pointer;
+    padding: 6px 12px; font-family: 'Inter', sans-serif; font-weight: 600;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--bg); color: var(--text); }
+  .btn.primary { background: var(--yellow); color: var(--black); border-color: var(--yellow); font-weight: 800; }
+  .btn.primary:hover { background: var(--yellow-soft); }
+  .btn.danger { color: var(--red); border-color: var(--red); }
+  .btn.danger:hover { background: var(--red-bg); }
+  .btn.success { color: var(--green-bright); border-color: var(--green-bright); }
+  .btn.small { padding: 4px 8px; font-size: 10px; }
+
+  /* MAIN */
+  main { padding: 18px; max-width: 1800px; margin: 0 auto; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    background: var(--panel); border: 1px solid var(--border);
+    padding: 10px 14px; display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .filter-bar label {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 9px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.12em;
+  }
+  .filter-bar select, .filter-bar input {
+    background: var(--bg); color: var(--text); border: 1px solid var(--border-strong);
+    padding: 6px 8px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    min-width: 160px;
+  }
+  .filter-bar select:focus, .filter-bar input:focus { outline: none; border-color: var(--yellow); }
+  .filter-bar input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(75%) sepia(100%) saturate(400%) hue-rotate(0deg);
+    cursor: pointer;
+  }
+  .filter-bar .filter-actions { display: flex; gap: 6px; margin-left: auto; }
+
+  /* KPI GRID */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .kpi {
+    background: var(--panel); border: 1px solid var(--border);
+    border-left: 3px solid var(--border-strong);
+    padding: 14px 18px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .kpi.primary { border-left-color: var(--yellow); }
+  .kpi.success { border-left-color: var(--green-bright); }
+  .kpi.warn { border-left-color: var(--orange); }
+  .kpi.info { border-left-color: var(--st-prop); }
+  .kpi-icon { position: absolute; top: 10px; right: 14px; font-size: 22px; opacity: 0.18; }
+  .kpi-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); }
+  .kpi-value { font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 700; line-height: 1; color: var(--text); }
+  .kpi.primary .kpi-value { color: var(--yellow); }
+  .kpi.success .kpi-value { color: var(--green-bright); }
+  .kpi.warn .kpi-value { color: var(--orange); }
+  .kpi.info .kpi-value { color: var(--st-prop); }
+  .kpi-hint { font-size: 11px; color: var(--text-dim); font-weight: 500; }
+
+  /* PANEL CARDS */
+  .grid-2 { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 12px; margin-bottom: 14px; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+  .panel-head {
+    padding: 10px 14px; background: var(--panel-2); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .panel-title {
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 13px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--text);
+  }
+  .panel-meta { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+  .panel-body { padding: 12px 14px; }
+
+  /* STAGE BARS */
+  .bar-list { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: grid; grid-template-columns: 130px 1fr 70px; gap: 10px; align-items: center; }
+  .bar-row .label { font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
+  .bar-row .track { height: 14px; background: var(--bg); border: 1px solid var(--border); position: relative; overflow: hidden; }
+  .bar-row .fill { height: 100%; transition: width 0.4s; }
+  .bar-row .val { font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); text-align: right; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .legend .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 9px; background: var(--panel-2); border: 1px solid var(--border);
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .legend .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* TOP DEALS */
+  .deal-list { display: flex; flex-direction: column; gap: 8px; }
+  .deal-card {
+    display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; align-items: center;
+    padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--border);
+    border-left: 3px solid var(--yellow);
+  }
+  .deal-rank { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: var(--yellow); color: var(--black); font-family: 'Oswald', sans-serif; font-weight: 800; font-size: 14px; }
+  .deal-name { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.02em; color: var(--text); line-height: 1.1; }
+  .deal-meta { font-size: 10px; font-weight: 500; color: var(--text-dim); margin-top: 3px; }
+  .deal-value { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--yellow); white-space: nowrap; }
+
+  /* TIMELINE */
+  .timeline {
+    display: grid; grid-template-columns: repeat(12, minmax(64px, 1fr)); gap: 8px;
+    align-items: end; min-height: 240px; padding-top: 10px;
+  }
+  .month-col { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 240px; justify-content: flex-end; }
+  .month-mrr {
+    font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700; color: var(--yellow);
+    background: var(--panel-2); border: 1px solid var(--border); padding: 3px 6px; line-height: 1;
+  }
+  .month-count { font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .month-bar-wrap { width: 100%; display: flex; align-items: flex-end; height: 160px; }
+  .month-bar { width: 100%; background: linear-gradient(180deg, var(--yellow), #b8870a); min-height: 4px; border-bottom: 0; }
+  .month-bar.empty { background: var(--border); }
+  .month-label { font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .month-col.current .month-label { color: var(--yellow); }
+
+  /* CONTAINER TILES */
+  .container-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .container-tile {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-left: 3px solid var(--yellow);
+    padding: 12px; text-align: center;
+  }
+  .container-tile .size { font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; line-height: 1; }
+  .container-tile .count { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); margin-top: 6px; line-height: 1; }
+  .container-tile .needed { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; font-weight: 600; }
+
+  /* STATE MAP */
+  .state-map-card { display: grid; grid-template-columns: 1fr 1.2fr; gap: 14px; align-items: stretch; }
+  .state-bubble-board {
+    background: var(--bg); border: 1px solid var(--border-strong);
+    position: relative; overflow: hidden; min-height: 320px;
+  }
+  .state-bubble {
+    position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 50%; background: linear-gradient(135deg, var(--yellow), #b8870a);
+    border: 2px solid var(--black);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    font-family: 'Oswald', sans-serif; font-weight: 800; color: var(--black);
+    text-align: center; padding: 8px;
+    transition: transform 0.2s;
+  }
+  .state-bubble:hover { transform: scale(1.05); z-index: 5; }
+  .state-bubble .st-name { font-size: 16px; line-height: 1; }
+  .state-bubble .st-mrr { font-size: 10px; font-weight: 700; margin-top: 2px; }
+
+  /* TABLES */
+  .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .data-table thead th {
+    text-align: left; font-size: 9px; font-weight: 700;
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em;
+    padding: 8px 10px; background: var(--panel-2);
+    border-bottom: 1px solid var(--border-strong);
+    position: sticky; top: 0; z-index: 1;
+  }
+  .data-table tbody td {
+    padding: 8px 10px; font-size: 12px; vertical-align: top;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .data-table tbody tr:hover td { background: var(--panel-2); }
+  .data-table tbody tr.stage-lead td        { border-left: 3px solid var(--st-lead); }
+  .data-table tbody tr.stage-qualification td { border-left: 3px solid var(--st-qual); }
+  .data-table tbody tr.stage-proposal td    { border-left: 3px solid var(--st-prop); }
+  .data-table tbody tr.stage-negotiation td { border-left: 3px solid var(--st-neg); }
+  .data-table tbody tr.stage-won td         { border-left: 3px solid var(--st-won); }
+  .data-table tbody tr.stage-municipal td   { border-left: 3px solid var(--st-muni); }
+  .data-table tbody tr.stage-issue td       { border-left: 3px solid var(--st-issue); }
+  .data-table tbody tr td:first-child { border-left-style: solid; }
+  .data-table .customer-name { font-weight: 700; color: var(--text); display: block; }
+  .data-table .small { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .data-table .money { font-family: 'Oswald', sans-serif; font-weight: 700; color: var(--yellow); }
+  .stage-badge {
+    display: inline-block; padding: 3px 8px;
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--black); white-space: nowrap;
+  }
+  .stage-badge.lead          { background: var(--st-lead); }
+  .stage-badge.qualification { background: var(--st-qual); color: white; }
+  .stage-badge.proposal      { background: var(--st-prop); color: white; }
+  .stage-badge.negotiation   { background: var(--st-neg); color: white; }
+  .stage-badge.won           { background: var(--st-won); }
+  .stage-badge.municipal     { background: var(--st-muni); color: white; }
+  .stage-badge.issue         { background: var(--st-issue); color: white; }
+  .row-actions { display: flex; gap: 4px; }
+  .icon-btn {
+    background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim);
+    cursor: pointer; padding: 3px 6px; font-size: 11px; line-height: 1;
+  }
+  .icon-btn:hover { color: var(--text); border-color: var(--text-dim); }
+  .icon-btn.danger:hover { color: var(--red); border-color: var(--red); }
+
+  /* ENTRY FORM */
+  .entry-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .entry-form label {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 9px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.12em;
+  }
+  .entry-form .span-2 { grid-column: span 2; }
+  .entry-form .span-3 { grid-column: span 3; }
+  .entry-form .full   { grid-column: 1 / -1; }
+  .entry-form input, .entry-form select, .entry-form textarea {
+    background: var(--bg); color: var(--text); border: 1px solid var(--border-strong);
+    padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+    width: 100%;
+  }
+  .entry-form input:focus, .entry-form select:focus, .entry-form textarea:focus { outline: none; border-color: var(--yellow); }
+  .entry-form input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(75%) sepia(100%) saturate(400%) hue-rotate(0deg); cursor: pointer;
+  }
+  .entry-form textarea { resize: vertical; min-height: 56px; }
+  .entry-form .form-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .multi-container-row {
+    display: grid; grid-template-columns: 1.2fr 80px auto; gap: 6px; margin-bottom: 6px;
+  }
+  .multi-container-row select, .multi-container-row input { font-size: 12px; padding: 6px 8px; }
+
+  .add-rep-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end;
+    margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border-strong);
+  }
+
+  .hidden { display: none !important; }
+
+  /* DEAL DETAIL MODAL */
+  .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+  .modal-mask.open { display: flex; }
+  .modal {
+    background: var(--panel); border: 2px solid var(--yellow);
+    width: 100%; max-width: 600px; max-height: 92vh; overflow: auto;
+  }
+  .modal h3 {
+    font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--yellow);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 14px 20px; background: var(--panel-2); border-bottom: 1px solid var(--border-strong);
+  }
+  .modal-body { padding: 18px 20px; }
+  .modal-foot {
+    padding: 12px 20px; background: var(--panel-2); border-top: 1px solid var(--border-strong);
+    display: flex; gap: 8px; justify-content: flex-end;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1199px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .container-grid { grid-template-columns: repeat(3, 1fr); }
+    .state-map-card { grid-template-columns: 1fr; }
+    .entry-form { grid-template-columns: 1fr 1fr; }
+    .entry-form .span-2 { grid-column: span 1; }
+    .entry-form .span-3 { grid-column: span 2; }
+  }
+  @media (max-width: 700px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .container-grid { grid-template-columns: 1fr 1fr; }
+    .entry-form { grid-template-columns: 1fr; }
+    .entry-form .span-2, .entry-form .span-3 { grid-column: span 1; }
+    .timeline { grid-template-columns: repeat(6, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand-block">
+    <div class="brand-mark">P</div>
+    <div>
+      <div class="brand-name">PRIORITY PIPELINE</div>
+      <div class="brand-sub">Outside Sales · Opportunity Tracker</div>
+    </div>
+  </div>
+  <div class="view-tabs">
+    <button class="vtab active" data-view="dashboard">Executive Dashboard</button>
+    <button class="vtab" data-view="repDashboard">Rep Dashboard</button>
+    <button class="vtab" data-view="entry">Pipeline Entry</button>
+  </div>
+  <div class="top-actions">
+    <div class="save-indicator" id="saveIndicator"><span class="dot"></span><span id="saveText">Saved</span></div>
+    <button class="btn small" id="exportBtn">⬇ Export Backup</button>
+    <button class="btn small" id="importBtn">⬆ Import</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none" />
+  </div>
+</div>
+
+<main>
+
+  <!-- ============ EXECUTIVE DASHBOARD ============ -->
+  <section id="dashboardView">
+    <div class="filter-bar">
+      <label>Sales Rep<select id="dashboardRepFilter"></select></label>
+      <label>Date Entered From<input id="enteredFromFilter" type="date" /></label>
+      <label>Date Entered To<input id="enteredToFilter" type="date" /></label>
+      <label>Stage<select id="dashboardStageFilter"><option value="">All Stages</option></select></label>
+      <label>State<select id="dashboardStateFilter"><option value="">All States</option></select></label>
+      <div class="filter-actions">
+        <button class="btn" id="dashClearFilters">Clear</button>
+        <button class="btn primary" id="dashCSV">Download CSV</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi primary">
+        <div class="kpi-icon">📈</div>
+        <div class="kpi-label">Open Opportunities</div>
+        <div class="kpi-value" id="mOpen">0</div>
+        <div class="kpi-hint">Filtered by selection</div>
+      </div>
+      <div class="kpi success">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-label">Monthly Revenue</div>
+        <div class="kpi-value" id="mRevenue">$0</div>
+        <div class="kpi-hint">Forecastable MRR</div>
+      </div>
+      <div class="kpi warn">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-label">Weighted Forecast</div>
+        <div class="kpi-value" id="mWeighted">$0</div>
+        <div class="kpi-hint">Revenue × stage %</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon">📦</div>
+        <div class="kpi-label">Containers Needed</div>
+        <div class="kpi-value" id="mContainers">0</div>
+        <div class="kpi-hint">Now → Dec 31</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Pipeline by Stage</div>
+          <div class="panel-meta">color-coded</div>
+        </div>
+        <div class="panel-body">
+          <div id="stageBars" class="bar-list"></div>
+          <div id="stageLegend" class="legend"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Top 5 Upcoming Sales</div>
+          <div class="panel-meta">by revenue</div>
+        </div>
+        <div class="panel-body">
+          <div id="topDeals" class="deal-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">Starts Coming Up · Year-End</div>
+        <div class="panel-meta">monthly starts + MRR</div>
+      </div>
+      <div class="panel-body">
+        <div id="timeline" class="timeline"></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">Containers Needed · Year-End</div>
+        <div class="panel-meta">demand by size</div>
+      </div>
+      <div class="panel-body">
+        <div id="containerTiles" class="container-grid"></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">State Revenue View</div>
+        <div class="panel-meta">expected MRR by state</div>
+      </div>
+      <div class="panel-body">
+        <div class="state-map-card">
+          <div class="state-bubble-board" id="stateBubbles"></div>
+          <div id="stateRevenueBars" class="bar-list" style="gap:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Pipeline Detail</div>
+        <div class="panel-meta">newest first</div>
+      </div>
+      <div class="panel-body" style="padding:0">
+        <div style="overflow:auto;max-height:600px">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rep</th><th>Customer</th><th>State</th><th>Contact</th>
+                <th>Containers</th><th>Revenue</th><th>Start</th><th>Entered</th>
+                <th>Stage</th><th>%</th><th>Hrs</th><th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="detailRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REP DASHBOARD ============ -->
+  <section id="repDashboardView" class="hidden">
+    <div class="filter-bar">
+      <label>Sales Rep<select id="repDashboardRepFilter"></select></label>
+      <label>Date Entered From<input id="repEnteredFromFilter" type="date" /></label>
+      <label>Date Entered To<input id="repEnteredToFilter" type="date" /></label>
+      <div class="filter-actions">
+        <button class="btn" id="repClearFilters">Clear</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi primary">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-label">My Opportunities</div>
+        <div class="kpi-value" id="rOpps">0</div>
+        <div class="kpi-hint">Filtered by date</div>
+      </div>
+      <div class="kpi success">
+        <div class="kpi-icon">💵</div>
+        <div class="kpi-label">My Monthly Revenue</div>
+        <div class="kpi-value" id="rRevenue">$0</div>
+        <div class="kpi-hint">Forecastable MRR</div>
+      </div>
+      <div class="kpi warn">
+        <div class="kpi-icon">🚀</div>
+        <div class="kpi-label">My Weighted Forecast</div>
+        <div class="kpi-value" id="rWeighted">$0</div>
+        <div class="kpi-hint">MRR × stage %</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon">⏱</div>
+        <div class="kpi-label">Municipal / Issue Time</div>
+        <div class="kpi-value" id="rSpecialPct">0%</div>
+        <div class="kpi-hint">% of tracked hours</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">My Pipeline by Stage</div>
+          <div class="panel-meta">personal funnel</div>
+        </div>
+        <div class="panel-body">
+          <div id="repStageBars" class="bar-list"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Municipal & Service Issue Time</div>
+          <div class="panel-meta">tracked hours</div>
+        </div>
+        <div class="panel-body">
+          <div id="repTimeBars" class="bar-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">My Pipeline Detail</div>
+        <div class="panel-meta">newest first</div>
+      </div>
+      <div class="panel-body" style="padding:0">
+        <div style="overflow:auto;max-height:600px">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th><th>State</th><th>Containers</th><th>Revenue</th>
+                <th>Start</th><th>Entered</th><th>Stage</th><th>%</th><th>Hrs</th><th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="repDetailRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PIPELINE ENTRY ============ -->
+  <section id="entryView" class="hidden">
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">Add Opportunity</div>
+        <div class="panel-meta">dashboard updates immediately</div>
+      </div>
+      <div class="panel-body">
+        <form id="entryForm" class="entry-form" onsubmit="return false">
+          <label>Sales Rep<select id="repInput"></select></label>
+          <label>Customer Name<input id="customerInput" placeholder="Customer / account name" /></label>
+          <label class="span-2">Address / Customer #<input id="addressInput" placeholder="Address or customer number" /></label>
+          <label class="span-2">Contact Info<input id="contactInput" placeholder="Name, phone, email" /></label>
+          <label>State<select id="stateInput"></select></label>
+          <label>Monthly Revenue ($)<input id="revenueInput" type="number" min="0" step="50" placeholder="0" /></label>
+          <label>Expected Start Date<input id="startInput" type="date" /></label>
+          <label>Date Entered<input id="enteredInput" type="date" /></label>
+          <label>Pipeline Stage<select id="stageInput"></select></label>
+          <label id="timeSpentLabel" class="hidden">Time Spent (hrs)<input id="timeSpentInput" type="number" min="0" step="0.25" placeholder="Required for Municipal/Issue" /></label>
+          <label class="full">
+            Containers / Sizes Needed
+            <div id="containerInputs"></div>
+            <button type="button" class="btn small" id="addContainerBtn">+ Add another container size</button>
+          </label>
+          <label class="full">Rep Notes<textarea id="notesInput" rows="3" placeholder="Decision maker, next step, issue details..."></textarea></label>
+          <div class="full form-actions">
+            <button class="btn primary" id="addOppBtn">+ Add to Pipeline</button>
+            <button class="btn" id="clearFormBtn">Clear Form</button>
+          </div>
+        </form>
+        <div class="add-rep-row">
+          <label>Add New Sales Rep<input id="newRepInput" placeholder="Enter new rep name" /></label>
+          <button class="btn" id="addRepBtn">+ Add Rep</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">All Opportunities</div>
+        <div class="panel-meta">
+          <button class="btn small" id="entryCSV">Download Full CSV</button>
+        </div>
+      </div>
+      <div class="panel-body" style="padding:0">
+        <div style="overflow:auto;max-height:600px">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rep</th><th>Customer</th><th>Address</th><th>State</th>
+                <th>Contact</th><th>Containers</th><th>Revenue</th>
+                <th>Start</th><th>Entered</th><th>Stage</th><th>%</th><th>Hrs</th><th>Notes</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="entryRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =========================================================================
+ *  PRIORITY PIPELINE  ·  v2 dark/yellow rebuild
+ *  Data layer is abstracted behind `pipelineStore` so we can swap localStorage
+ *  for Firestore (or any backend) without touching the rendering code.
+ * ========================================================================= */
+
+const STORAGE_KEY = 'priority_pipeline_v2';
+const TODAY = new Date().toISOString().slice(0,10);
+const yearEnd = () => `${new Date().getFullYear()}-12-31`;
+
+const DEFAULT_REPS = ['Janeen O', 'Alex L', 'Omar', 'Troy T', 'Brokers'];
+const ALL_KNOWN_REPS = [
+  'Alex Kish', 'Alex L', 'Lauren R', 'Hunter Czymbor',
+  'Brandon Misiak', 'Janeen O', 'Luke D', 'Michael Carroll',
+  'Megan S', 'Troy T', 'Omar', 'Brokers'
+];
+
+const CONTAINER_SIZES = [
+  '2 yd', '4 yd', '6 yd', '8 yd', '10 yd', '20 yd', '30 yd', '40 yd',
+  'Compactor', 'Other',
+  'Slanted 2 yd', 'Slanted 4 yd', 'Slanted 6 yd', 'Slanted 8 yd', 'Slanted 10 yd'
+];
+const QUANTITIES = Array.from({ length: 30 }, (_, i) => String(i + 1));
+const STATES = ['MI', 'OH', 'IN', 'IL', 'WI', 'PA', 'KY', 'TN', 'KS', 'MO', 'Other'];
+
+const STAGES = {
+  'Lead / Prospecting':       { pct: 15,   cls: 'lead',          label: 'Lead' },
+  'Qualification':            { pct: 40,   cls: 'qualification', label: 'Qualification' },
+  'Proposal / Quote Sent':    { pct: 60,   cls: 'proposal',      label: 'Proposal' },
+  'Negotiation / Final Review': { pct: 80, cls: 'negotiation',   label: 'Negotiation' },
+  'Closed Won':               { pct: 100,  cls: 'won',           label: 'Closed Won' },
+  'Municipal Work':           { pct: null, cls: 'municipal',     label: 'Municipal' },
+  'Service Issue':            { pct: null, cls: 'issue',         label: 'Service Issue' }
+};
+const STAGE_COLOR_VAR = {
+  lead: '--st-lead', qualification: '--st-qual', proposal: '--st-prop',
+  negotiation: '--st-neg', won: '--st-won', municipal: '--st-muni', issue: '--st-issue'
+};
+
+/* ============== SAMPLE DATA (only used on very first load) ============== */
+const SAMPLE_OPPS = [
+  { id: id(), rep: 'Janeen O', customer: 'Blue Sky Manufacturing', address: '#10452 / 1200 Industrial Dr', state: 'MI', contact: 'Dana Reed · 555-0108', containers: [{ size: '8 yd', qty: 3 }, { size: '30 yd', qty: 1 }], revenue: 5200, start: '2026-06-15', entered: TODAY, stage: 'Proposal / Quote Sent', timeSpent: 0, notes: 'Waiting on final approval from operations.' },
+  { id: id(), rep: 'Alex L',   customer: 'Northview Apartments',   address: '#11877 / 85 Ridge Ave',       state: 'OH', contact: 'Mark Ellis · 555-0144', containers: [{ size: '4 yd', qty: 6 }],                          revenue: 4100, start: '2026-07-01', entered: TODAY, stage: 'Qualification',         timeSpent: 0, notes: 'Confirmed timeline; budget discussion next.' },
+  { id: id(), rep: 'Omar',     customer: 'City of Lakeside',       address: 'Municipal bid',               state: 'MI', contact: 'Public Works · 555-0122', containers: [{ size: '20 yd', qty: 4 }, { size: '40 yd', qty: 2 }], revenue: 0, start: '2026-08-10', entered: TODAY, stage: 'Municipal Work',       timeSpent: 5.5, notes: 'Bid package due next month.' },
+  { id: id(), rep: 'Troy T',   customer: 'Greenway Retail Center', address: '#12641 / 9 Market Way',       state: 'IN', contact: 'Sasha Kim · 555-0189', containers: [{ size: '6 yd', qty: 4 }, { size: '8 yd', qty: 2 }],   revenue: 6800, start: '2026-09-05', entered: TODAY, stage: 'Negotiation / Final Review', timeSpent: 0, notes: 'Verbal yes; legal reviewing terms.' },
+  { id: id(), rep: 'Brokers',  customer: 'Prime Medical Plaza',    address: '#13318 / 42 Wellness Blvd',   state: 'IL', contact: 'Terry Hall · 555-0112', containers: [{ size: 'Slanted 2 yd', qty: 8 }],                  revenue: 3600, start: '2026-10-01', entered: TODAY, stage: 'Lead / Prospecting',   timeSpent: 0, notes: 'Inbound request from website.' },
+  { id: id(), rep: 'Alex L',   customer: 'Horizon Logistics',      address: '#12900 / 77 Freight Rd',      state: 'OH', contact: 'Alex Stone · 555-0177', containers: [{ size: '10 yd', qty: 2 }, { size: '40 yd', qty: 3 }], revenue: 9200, start: '2026-11-15', entered: TODAY, stage: 'Closed Won',           timeSpent: 0, notes: 'Start scheduled. Confirm delivery equipment.' },
+  { id: id(), rep: 'Omar',     customer: 'Elm Street Grocery',     address: '#13177 / 31 Elm St',          state: 'MI', contact: 'Store Manager · 555-0191', containers: [{ size: '4 yd', qty: 2 }],                       revenue: 0, start: '2026-06-24', entered: TODAY, stage: 'Service Issue',       timeSpent: 2, notes: 'Current service issue; not part of forecast.' }
+];
+
+function id() { return 'op_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
+
+/* =========================================================================
+ *  PIPELINE STORE  —  data layer abstraction
+ *  - LocalImpl: localStorage (current default)
+ *  - FirestoreImpl: firebase/firestore (commented stub below)
+ *  Anywhere we read/write data, we go through `pipelineStore.*`
+ * ========================================================================= */
+const LocalStoreImpl = {
+  load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        return { reps: [...DEFAULT_REPS], opportunities: [...SAMPLE_OPPS] };
+      }
+      const parsed = JSON.parse(raw);
+      return {
+        reps: Array.isArray(parsed.reps) && parsed.reps.length ? parsed.reps : [...DEFAULT_REPS],
+        opportunities: Array.isArray(parsed.opportunities) ? parsed.opportunities : []
+      };
+    } catch (e) {
+      console.error('Failed to load from localStorage:', e);
+      return { reps: [...DEFAULT_REPS], opportunities: [...SAMPLE_OPPS] };
+    }
+  },
+  save(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        reps: state.reps,
+        opportunities: state.opportunities,
+        savedAt: new Date().toISOString()
+      }));
+      return true;
+    } catch (e) {
+      console.error('Failed to save:', e);
+      return false;
+    }
+  },
+  /* ---- Future Firestore drop-in (uncomment + plug in your config to enable) ----
+   *
+   * Setup:
+   *   1. https://console.firebase.google.com → create project
+   *   2. Build → Firestore Database → Create
+   *   3. Project Settings → SDK setup → copy config object
+   *   4. Replace LocalStoreImpl with FirestoreImpl in `pipelineStore = ...` line below
+   *   5. Add the firebase script tags to <head>:
+   *        <script type="module">
+   *          import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+   *          import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+   *          window._fb = { initializeApp, getFirestore, doc, getDoc, setDoc, onSnapshot };
+   *        <\/script>
+   *
+   * const FIREBASE_CONFIG = { apiKey: "...", authDomain: "...", projectId: "...", appId: "..." };
+   * const FirestoreImpl = {
+   *   _ready: false, _db: null, _onUpdate: null,
+   *   async init(onRemoteUpdate) {
+   *     const fb = window._fb;
+   *     const app = fb.initializeApp(FIREBASE_CONFIG);
+   *     this._db = fb.getFirestore(app);
+   *     this._onUpdate = onRemoteUpdate;
+   *     fb.onSnapshot(fb.doc(this._db, 'pipeline', 'shared'), (snap) => {
+   *       if (snap.exists() && this._onUpdate) this._onUpdate(snap.data());
+   *     });
+   *     this._ready = true;
+   *   },
+   *   async load() {
+   *     const fb = window._fb;
+   *     const snap = await fb.getDoc(fb.doc(this._db, 'pipeline', 'shared'));
+   *     return snap.exists() ? snap.data() : { reps: [...DEFAULT_REPS], opportunities: [] };
+   *   },
+   *   async save(state) {
+   *     const fb = window._fb;
+   *     await fb.setDoc(fb.doc(this._db, 'pipeline', 'shared'), state);
+   *     return true;
+   *   }
+   * };
+   */
+};
+
+const pipelineStore = LocalStoreImpl;
+
+/* =========================================================================
+ *  STATE
+ * ========================================================================= */
+let state = pipelineStore.load();
+
+function persist() {
+  setSaveStatus('saving');
+  const ok = pipelineStore.save(state);
+  if (ok) setTimeout(() => setSaveStatus('saved'), 200);
+  else setSaveStatus('error');
+}
+function setSaveStatus(status) {
+  const el = document.getElementById('saveIndicator');
+  const text = document.getElementById('saveText');
+  el.classList.remove('saving', 'error');
+  if (status === 'saving') { el.classList.add('saving'); text.textContent = 'Saving…'; }
+  else if (status === 'error') { el.classList.add('error'); text.textContent = 'Save failed'; }
+  else { text.textContent = 'Saved'; }
+}
+
+/* =========================================================================
+ *  FORMATTERS
+ * ========================================================================= */
+function money(n) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(n || 0));
+}
+function shortMoney(n) {
+  n = Number(n || 0);
+  if (!n) return '$0';
+  return Math.abs(n) >= 1000 ? '$' + Math.round(n / 1000) + 'k' : money(n);
+}
+function niceDate(d) {
+  if (!d) return '';
+  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function containersText(items) {
+  return (items || []).filter(x => x.size && x.qty).map(x => `${x.qty} × ${x.size}`).join(', ');
+}
+function throughYearEnd(o) {
+  return !!o.start && o.start >= TODAY && o.start <= yearEnd();
+}
+function forecastable(arr) {
+  return arr.filter(o => STAGES[o.stage] && STAGES[o.stage].pct !== null);
+}
+function escHTML(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* =========================================================================
+ *  FILTERED VIEWS
+ * ========================================================================= */
+function filteredOpps() {
+  const rep   = document.getElementById('dashboardRepFilter').value || 'All Sales Reps';
+  const from  = document.getElementById('enteredFromFilter').value;
+  const to    = document.getElementById('enteredToFilter').value;
+  const stage = document.getElementById('dashboardStageFilter').value;
+  const st    = document.getElementById('dashboardStateFilter').value;
+  return state.opportunities.filter(o => {
+    if (rep !== 'All Sales Reps' && o.rep !== rep) return false;
+    if (from && o.entered < from) return false;
+    if (to && o.entered > to) return false;
+    if (stage && o.stage !== stage) return false;
+    if (st && o.state !== st) return false;
+    return true;
+  });
+}
+function repDashboardOpps() {
+  const rep  = document.getElementById('repDashboardRepFilter').value;
+  const from = document.getElementById('repEnteredFromFilter').value;
+  const to   = document.getElementById('repEnteredToFilter').value;
+  return state.opportunities.filter(o => o.rep === rep && (!from || o.entered >= from) && (!to || o.entered <= to));
+}
+
+/* =========================================================================
+ *  RENDERERS · EXECUTIVE DASHBOARD
+ * ========================================================================= */
+function renderDashboard() {
+  const data = filteredOpps();
+  const fd = forecastable(data);
+  const open = data.filter(o => !['Closed Won', 'Municipal Work', 'Service Issue'].includes(o.stage));
+  const containers = data.filter(throughYearEnd).flatMap(o => o.containers || []);
+  document.getElementById('mOpen').textContent = open.length;
+  document.getElementById('mRevenue').textContent = money(fd.reduce((s, o) => s + Number(o.revenue || 0), 0));
+  document.getElementById('mWeighted').textContent = money(fd.reduce((s, o) => s + Number(o.revenue || 0) * (STAGES[o.stage].pct / 100), 0));
+  document.getElementById('mContainers').textContent = containers.reduce((s, c) => s + Number(c.qty || 0), 0);
+  renderStageBars(data, 'stageBars', 'stageLegend');
+  renderTopDeals(data);
+  renderTimeline(data);
+  renderContainerTiles(containers);
+  renderStateRevenue(data);
+  renderDetailRows(data, 'detailRows', true);
+}
+
+function renderStageBars(data, barsId, legendId) {
+  const counts = Object.keys(STAGES).map(s => ({ stage: s, count: data.filter(o => o.stage === s).length }));
+  const max = Math.max(1, ...counts.map(c => c.count));
+  document.getElementById(barsId).innerHTML = counts.map(c => `
+    <div class="bar-row">
+      <div class="label">${STAGES[c.stage].label}</div>
+      <div class="track"><div class="fill" style="width:${(c.count / max) * 100}%;background:var(${STAGE_COLOR_VAR[STAGES[c.stage].cls]})"></div></div>
+      <div class="val">${c.count}</div>
+    </div>
+  `).join('');
+  if (legendId) {
+    document.getElementById(legendId).innerHTML = Object.keys(STAGES).map(s => {
+      const cls = STAGES[s].cls;
+      const pctText = STAGES[s].pct !== null ? ' · ' + STAGES[s].pct + '%' : '';
+      return `<span class="pill"><span class="dot" style="background:var(${STAGE_COLOR_VAR[cls]})"></span>${escHTML(s)}${pctText}</span>`;
+    }).join('');
+  }
+}
+
+function renderTopDeals(data) {
+  const deals = forecastable(data).filter(throughYearEnd).sort((a, b) => Number(b.revenue || 0) - Number(a.revenue || 0)).slice(0, 5);
+  const el = document.getElementById('topDeals');
+  if (!deals.length) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:11px;padding:8px 0;text-transform:uppercase;letter-spacing:0.1em">No forecastable upcoming sales yet.</div>';
+    return;
+  }
+  el.innerHTML = deals.map((o, i) => `
+    <div class="deal-card">
+      <div class="deal-rank">${i + 1}</div>
+      <div>
+        <div class="deal-name">${escHTML(o.customer)}</div>
+        <div class="deal-meta">${escHTML(o.rep)} · ${escHTML(o.state || '—')} · ${niceDate(o.start)} · ${escHTML(o.stage)}</div>
+      </div>
+      <div class="deal-value">${money(o.revenue)}</div>
+    </div>
+  `).join('');
+}
+
+function renderTimeline(data) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const counts = Array(12).fill(0);
+  const mrr = Array(12).fill(0);
+  data.filter(throughYearEnd).forEach(o => {
+    const m = new Date(o.start + 'T00:00:00').getMonth();
+    counts[m]++;
+    if (STAGES[o.stage] && STAGES[o.stage].pct !== null) mrr[m] += Number(o.revenue || 0);
+  });
+  const max = Math.max(1, ...counts);
+  const currentMonth = new Date().getMonth();
+  document.getElementById('timeline').innerHTML = counts.map((c, i) => `
+    <div class="month-col ${i === currentMonth ? 'current' : ''}">
+      <div class="month-mrr">${shortMoney(mrr[i])}</div>
+      <div class="month-count">${c} ${c === 1 ? 'start' : 'starts'}</div>
+      <div class="month-bar-wrap"><div class="month-bar ${c === 0 ? 'empty' : ''}" style="height:${4 + (c / max) * 156}px"></div></div>
+      <div class="month-label">${months[i]}</div>
+    </div>
+  `).join('');
+}
+
+function renderContainerTiles(containers) {
+  const totals = {};
+  containers.forEach(c => { totals[c.size] = (totals[c.size] || 0) + Number(c.qty || 0); });
+  const rows = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+  const display = rows.length ? rows : CONTAINER_SIZES.slice(0, 6).map(s => [s, 0]);
+  document.getElementById('containerTiles').innerHTML = display.map(([size, count]) => `
+    <div class="container-tile">
+      <div class="size">${escHTML(size)}</div>
+      <div class="count">${count}</div>
+      <div class="needed">needed</div>
+    </div>
+  `).join('');
+}
+
+function renderStateRevenue(data) {
+  const totals = {};
+  forecastable(data).forEach(o => {
+    const st = o.state || 'Other';
+    totals[st] = (totals[st] || 0) + Number(o.revenue || 0);
+  });
+  const rows = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+  const display = rows.length ? rows : [['No Data', 0]];
+  const max = Math.max(1, ...display.map(x => x[1]));
+  // Bubble layout
+  const positions = [
+    { left: 12, top: 18 }, { left: 42, top: 8  }, { left: 70, top: 26 },
+    { left: 22, top: 56 }, { left: 56, top: 60 }, { left: 78, top: 12 }
+  ];
+  document.getElementById('stateBubbles').innerHTML = display.slice(0, 6).map((row, i) => {
+    const size = 70 + (row[1] / max) * 80;
+    const pos = positions[i % positions.length];
+    return `
+      <div class="state-bubble" style="width:${size}px;height:${size}px;left:${pos.left}%;top:${pos.top}%">
+        <div class="st-name">${escHTML(row[0])}</div>
+        <div class="st-mrr">${shortMoney(row[1])} MRR</div>
+      </div>
+    `;
+  }).join('');
+  // Bar list
+  document.getElementById('stateRevenueBars').innerHTML = display.map(row => `
+    <div class="bar-row">
+      <div class="label">${escHTML(row[0])}</div>
+      <div class="track"><div class="fill" style="width:${(row[1] / max) * 100}%;background:linear-gradient(90deg,var(--yellow),#b8870a)"></div></div>
+      <div class="val">${money(row[1])}</div>
+    </div>
+  `).join('');
+}
+
+/* =========================================================================
+ *  RENDERERS · REP DASHBOARD
+ * ========================================================================= */
+function renderRepDashboard() {
+  const data = repDashboardOpps();
+  const fd = forecastable(data);
+  const totalHours = data.reduce((s, o) => s + Number(o.timeSpent || 0), 0);
+  const special = data.filter(o => ['Municipal Work', 'Service Issue'].includes(o.stage)).reduce((s, o) => s + Number(o.timeSpent || 0), 0);
+  document.getElementById('rOpps').textContent = data.length;
+  document.getElementById('rRevenue').textContent = money(fd.reduce((s, o) => s + Number(o.revenue || 0), 0));
+  document.getElementById('rWeighted').textContent = money(fd.reduce((s, o) => s + Number(o.revenue || 0) * (STAGES[o.stage].pct / 100), 0));
+  document.getElementById('rSpecialPct').textContent = totalHours ? Math.round((special / totalHours) * 100) + '%' : '0%';
+  renderStageBars(data, 'repStageBars', null);
+  renderRepTimeBars(data);
+  renderDetailRows(data, 'repDetailRows', false);
+}
+
+function renderRepTimeBars(data) {
+  const muniHrs  = data.filter(o => o.stage === 'Municipal Work').reduce((s, o) => s + Number(o.timeSpent || 0), 0);
+  const issueHrs = data.filter(o => o.stage === 'Service Issue').reduce((s, o) => s + Number(o.timeSpent || 0), 0);
+  const otherHrs = data.filter(o => !['Municipal Work', 'Service Issue'].includes(o.stage)).reduce((s, o) => s + Number(o.timeSpent || 0), 0);
+  const rows = [
+    { label: 'Municipal',     hrs: muniHrs,  varName: '--st-muni' },
+    { label: 'Service Issue', hrs: issueHrs, varName: '--st-issue' },
+    { label: 'Other',         hrs: otherHrs, varName: '--yellow' }
+  ];
+  const max = Math.max(1, ...rows.map(r => r.hrs));
+  document.getElementById('repTimeBars').innerHTML = rows.map(r => `
+    <div class="bar-row">
+      <div class="label">${r.label}</div>
+      <div class="track"><div class="fill" style="width:${(r.hrs / max) * 100}%;background:var(${r.varName})"></div></div>
+      <div class="val">${r.hrs} hr</div>
+    </div>
+  `).join('');
+}
+
+/* =========================================================================
+ *  RENDERERS · DETAIL TABLES
+ * ========================================================================= */
+function rowClassFor(o) {
+  return STAGES[o.stage] ? 'stage-' + STAGES[o.stage].cls : '';
+}
+function pctText(o) {
+  return STAGES[o.stage] && STAGES[o.stage].pct !== null ? STAGES[o.stage].pct + '%' : '—';
+}
+function badgeHTML(o) {
+  if (!STAGES[o.stage]) return '';
+  return `<span class="stage-badge ${STAGES[o.stage].cls}">${escHTML(STAGES[o.stage].label)}</span>`;
+}
+
+function renderDetailRows(data, tbodyId, includeRep) {
+  const sorted = [...data].sort((a, b) => (b.entered || '').localeCompare(a.entered || '') || (a.start || '9999').localeCompare(b.start || '9999'));
+  const tbody = document.getElementById(tbodyId);
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="${includeRep ? 12 : 10}" style="text-align:center;color:var(--text-muted);padding:18px">No opportunities match the current filters.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sorted.map(o => `
+    <tr class="${rowClassFor(o)}">
+      ${includeRep ? `<td>${escHTML(o.rep)}</td>` : ''}
+      <td><span class="customer-name">${escHTML(o.customer)}</span><div class="small">${escHTML(o.address || '')}</div></td>
+      <td>${escHTML(o.state || '')}</td>
+      ${includeRep ? `<td>${escHTML(o.contact || '')}</td>` : ''}
+      <td>${escHTML(containersText(o.containers))}</td>
+      <td class="money">${money(o.revenue)}</td>
+      <td>${niceDate(o.start)}</td>
+      <td>${niceDate(o.entered)}</td>
+      <td>${badgeHTML(o)}</td>
+      <td>${pctText(o)}</td>
+      <td>${o.timeSpent ? o.timeSpent + ' hr' : '—'}</td>
+      <td>${escHTML(o.notes || '')}</td>
+    </tr>
+  `).join('');
+}
+
+/* =========================================================================
+ *  RENDERER · ENTRY VIEW (with edit/delete actions)
+ * ========================================================================= */
+function renderEntryRows() {
+  const sorted = [...state.opportunities].sort((a, b) => (b.entered || '').localeCompare(a.entered || ''));
+  const tbody = document.getElementById('entryRows');
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="14" style="text-align:center;color:var(--text-muted);padding:18px">No opportunities yet. Add one above.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sorted.map(o => `
+    <tr class="${rowClassFor(o)}" data-id="${o.id}">
+      <td>${escHTML(o.rep)}</td>
+      <td><span class="customer-name">${escHTML(o.customer)}</span></td>
+      <td>${escHTML(o.address || '')}</td>
+      <td>${escHTML(o.state || '')}</td>
+      <td>${escHTML(o.contact || '')}</td>
+      <td>${escHTML(containersText(o.containers))}</td>
+      <td class="money">${money(o.revenue)}</td>
+      <td>${niceDate(o.start)}</td>
+      <td>${niceDate(o.entered)}</td>
+      <td>${badgeHTML(o)}</td>
+      <td>${pctText(o)}</td>
+      <td>${o.timeSpent ? o.timeSpent + ' hr' : '—'}</td>
+      <td>${escHTML(o.notes || '')}</td>
+      <td><div class="row-actions"><button class="icon-btn danger" data-action="delete" title="Delete">✕</button></div></td>
+    </tr>
+  `).join('');
+}
+
+/* =========================================================================
+ *  ENTRY FORM
+ * ========================================================================= */
+function addContainerInput(size, qty) {
+  size = size || '8 yd';
+  qty = qty || '1';
+  const div = document.createElement('div');
+  div.className = 'multi-container-row';
+  div.innerHTML = `
+    <select data-container-size>
+      ${CONTAINER_SIZES.map(s => `<option ${s === size ? 'selected' : ''}>${s}</option>`).join('')}
+    </select>
+    <select data-container-qty>
+      ${QUANTITIES.map(q => `<option ${q === String(qty) ? 'selected' : ''}>${q}</option>`).join('')}
+    </select>
+    <button type="button" class="btn small" onclick="this.parentElement.remove()">Remove</button>
+  `;
+  document.getElementById('containerInputs').appendChild(div);
+}
+
+function clearForm() {
+  ['customerInput', 'addressInput', 'contactInput', 'revenueInput', 'startInput', 'notesInput', 'timeSpentInput']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('enteredInput').value = TODAY;
+  document.getElementById('stageInput').value = 'Lead / Prospecting';
+  document.getElementById('containerInputs').innerHTML = '';
+  addContainerInput();
+  toggleTimeSpentPrompt();
+}
+
+function addOpportunity() {
+  const stage = document.getElementById('stageInput').value;
+  const timeSpent = Number(document.getElementById('timeSpentInput').value || 0);
+  if (['Municipal Work', 'Service Issue'].includes(stage) && timeSpent <= 0) {
+    alert('Please enter time spent for Municipal Work or Service Issue entries.');
+    return;
+  }
+  const containers = Array.from(document.querySelectorAll('.multi-container-row')).map(row => ({
+    size: row.querySelector('[data-container-size]').value,
+    qty: Number(row.querySelector('[data-container-qty]').value)
+  })).filter(c => c.size && c.qty);
+
+  const newOpp = {
+    id: id(),
+    rep:       document.getElementById('repInput').value,
+    customer:  document.getElementById('customerInput').value || 'New Customer',
+    address:   document.getElementById('addressInput').value,
+    contact:   document.getElementById('contactInput').value,
+    state:     document.getElementById('stateInput').value,
+    revenue:   Number(document.getElementById('revenueInput').value || 0),
+    start:     document.getElementById('startInput').value,
+    entered:   document.getElementById('enteredInput').value || TODAY,
+    stage,
+    timeSpent,
+    containers,
+    notes:     document.getElementById('notesInput').value
+  };
+  state.opportunities.unshift(newOpp);
+  persist();
+  clearForm();
+  renderAll();
+  setView('dashboard');
+}
+
+function deleteOpportunity(opId) {
+  if (!confirm('Delete this opportunity? This cannot be undone.')) return;
+  state.opportunities = state.opportunities.filter(o => o.id !== opId);
+  persist();
+  renderAll();
+}
+
+function toggleTimeSpentPrompt() {
+  const show = ['Municipal Work', 'Service Issue'].includes(document.getElementById('stageInput').value);
+  document.getElementById('timeSpentLabel').classList.toggle('hidden', !show);
+  if (!show) document.getElementById('timeSpentInput').value = '';
+}
+
+function addSalesRep() {
+  const input = document.getElementById('newRepInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (!state.reps.includes(name)) state.reps.push(name);
+  input.value = '';
+  persist();
+  populateRepDropdowns(name);
+  renderAll();
+}
+
+/* =========================================================================
+ *  CSV EXPORT
+ * ========================================================================= */
+function exportRowsToCSV(filename, rows) {
+  const headers = ['Sales Rep', 'Customer', 'Address / Customer #', 'State', 'Contact', 'Containers', 'Monthly Revenue', 'Expected Start', 'Date Entered', 'Pipeline Stage', 'Stage %', 'Time Spent (hrs)', 'Notes'];
+  const data = rows.map(o => [
+    o.rep, o.customer, o.address || '', o.state || '', o.contact || '',
+    containersText(o.containers), Number(o.revenue || 0), o.start || '', o.entered || '',
+    o.stage, pctText(o), o.timeSpent || '', (o.notes || '').replace(/\n/g, ' ')
+  ]);
+  const csv = [headers, ...data].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* =========================================================================
+ *  BACKUP (JSON Export / Import)
+ * ========================================================================= */
+function exportBackup() {
+  const payload = {
+    schema: 'priority_pipeline_v2',
+    exportedAt: new Date().toISOString(),
+    reps: state.reps,
+    opportunities: state.opportunities
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `priority_pipeline_backup_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed || !Array.isArray(parsed.opportunities)) throw new Error('Not a valid pipeline backup');
+      const merge = confirm(
+        `Found ${parsed.opportunities.length} opportunities and ${(parsed.reps || []).length} reps in the backup.\n\n` +
+        `OK = Replace current data with backup\n` +
+        `Cancel = Merge backup into current data (keeps both)`
+      );
+      if (merge) {
+        state = {
+          reps: Array.from(new Set([...DEFAULT_REPS, ...(parsed.reps || [])])),
+          opportunities: parsed.opportunities.map(o => ({ ...o, id: o.id || id() }))
+        };
+      } else {
+        const existing = new Set(state.opportunities.map(o => o.id).filter(Boolean));
+        const incoming = parsed.opportunities.filter(o => !o.id || !existing.has(o.id))
+          .map(o => ({ ...o, id: o.id || id() }));
+        state = {
+          reps: Array.from(new Set([...state.reps, ...(parsed.reps || [])])),
+          opportunities: [...state.opportunities, ...incoming]
+        };
+      }
+      persist();
+      populateRepDropdowns();
+      renderAll();
+      alert('Import complete.');
+    } catch (err) {
+      alert('Import failed: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* =========================================================================
+ *  VIEW TABS / DROPDOWNS
+ * ========================================================================= */
+function setView(view) {
+  const safe = ['dashboard', 'repDashboard', 'entry'].includes(view) ? view : 'dashboard';
+  document.getElementById('dashboardView').classList.toggle('hidden', safe !== 'dashboard');
+  document.getElementById('repDashboardView').classList.toggle('hidden', safe !== 'repDashboard');
+  document.getElementById('entryView').classList.toggle('hidden', safe !== 'entry');
+  document.querySelectorAll('.vtab').forEach(t => t.classList.toggle('active', t.dataset.view === safe));
+  renderAll();
+}
+
+function populateRepDropdowns(selected) {
+  selected = selected || 'All Sales Reps';
+  const all = ['All Sales Reps', ...state.reps];
+  const repOnly = state.reps;
+  document.getElementById('dashboardRepFilter').innerHTML  = all.map(r => `<option ${r === selected ? 'selected' : ''}>${escHTML(r)}</option>`).join('');
+  document.getElementById('repDashboardRepFilter').innerHTML = repOnly.map((r, i) => `<option ${(r === selected || (selected === 'All Sales Reps' && i === 0)) ? 'selected' : ''}>${escHTML(r)}</option>`).join('');
+  document.getElementById('repInput').innerHTML = repOnly.map(r => `<option ${r === selected ? 'selected' : ''}>${escHTML(r)}</option>`).join('');
+}
+
+function populateStaticDropdowns() {
+  document.getElementById('dashboardStageFilter').innerHTML =
+    '<option value="">All Stages</option>' + Object.keys(STAGES).map(s => `<option>${escHTML(s)}</option>`).join('');
+  document.getElementById('dashboardStateFilter').innerHTML =
+    '<option value="">All States</option>' + STATES.map(s => `<option>${escHTML(s)}</option>`).join('');
+  document.getElementById('stageInput').innerHTML = Object.keys(STAGES).map(s => `<option>${escHTML(s)}</option>`).join('');
+  document.getElementById('stateInput').innerHTML = STATES.map(s => `<option>${escHTML(s)}</option>`).join('');
+}
+
+function clearDashFilters() {
+  document.getElementById('dashboardRepFilter').value = 'All Sales Reps';
+  document.getElementById('enteredFromFilter').value = '';
+  document.getElementById('enteredToFilter').value = '';
+  document.getElementById('dashboardStageFilter').value = '';
+  document.getElementById('dashboardStateFilter').value = '';
+  renderAll();
+}
+function clearRepFilters() {
+  document.getElementById('repEnteredFromFilter').value = '';
+  document.getElementById('repEnteredToFilter').value = '';
+  renderAll();
+}
+
+function renderAll() {
+  renderDashboard();
+  renderRepDashboard();
+  renderEntryRows();
+}
+
+/* =========================================================================
+ *  EVENT BINDINGS
+ * ========================================================================= */
+function bindEvents() {
+  document.querySelectorAll('.vtab').forEach(t => t.addEventListener('click', () => setView(t.dataset.view)));
+
+  // Dashboard filters
+  ['dashboardRepFilter', 'enteredFromFilter', 'enteredToFilter', 'dashboardStageFilter', 'dashboardStateFilter']
+    .forEach(id => document.getElementById(id).addEventListener('change', renderAll));
+  document.getElementById('dashClearFilters').addEventListener('click', clearDashFilters);
+  document.getElementById('dashCSV').addEventListener('click', () => exportRowsToCSV('priority_pipeline_dashboard.csv', filteredOpps()));
+
+  // Rep dashboard filters
+  ['repDashboardRepFilter', 'repEnteredFromFilter', 'repEnteredToFilter']
+    .forEach(id => document.getElementById(id).addEventListener('change', renderAll));
+  document.getElementById('repClearFilters').addEventListener('click', clearRepFilters);
+
+  // Entry form
+  document.getElementById('addContainerBtn').addEventListener('click', () => addContainerInput());
+  document.getElementById('stageInput').addEventListener('change', toggleTimeSpentPrompt);
+  document.getElementById('addOppBtn').addEventListener('click', addOpportunity);
+  document.getElementById('clearFormBtn').addEventListener('click', clearForm);
+  document.getElementById('addRepBtn').addEventListener('click', addSalesRep);
+  document.getElementById('newRepInput').addEventListener('keypress', e => { if (e.key === 'Enter') addSalesRep(); });
+  document.getElementById('entryCSV').addEventListener('click', () => exportRowsToCSV('priority_pipeline_full.csv', state.opportunities));
+
+  // Entry table actions
+  document.getElementById('entryRows').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const tr = e.target.closest('tr[data-id]');
+    if (!tr) return;
+    if (btn.dataset.action === 'delete') deleteOpportunity(tr.dataset.id);
+  });
+
+  // Backup
+  document.getElementById('exportBtn').addEventListener('click', exportBackup);
+  document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change', e => {
+    if (e.target.files[0]) importBackup(e.target.files[0]);
+    e.target.value = '';
+  });
+}
+
+/* =========================================================================
+ *  INIT
+ * ========================================================================= */
+function init() {
+  populateStaticDropdowns();
+  populateRepDropdowns();
+  document.getElementById('enteredInput').value = TODAY;
+  addContainerInput();
+  toggleTimeSpentPrompt();
+  bindEvents();
+  renderAll();
+  setSaveStatus('saved');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
