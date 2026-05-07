@@ -32,9 +32,52 @@
     --st-prop: #3498db;
     --st-neg: #e74c3c;
     --st-won: #2ecc71;
+    --st-lost: #e74c3c;
     --st-muni: #7f8c8d;
     --st-issue: #4a5568;
   }
+
+  /* ============ THEME: LIGHT MODE ============ */
+  body.light {
+    --bg: #f5f5f7;
+    --panel: #ffffff;
+    --panel-2: #f8f9fb;
+    --panel-3: #eef0f4;
+    --border: #e2e5ea;
+    --border-strong: #cdd2da;
+    --text: #1a1a1f;
+    --text-dim: #5c6370;
+    --text-muted: #8a909a;
+    --red-bg: #fdecea;
+    --green-bg: #e8f7ee;
+  }
+  body.light .top-bar { box-shadow: 0 1px 0 rgba(0,0,0,0.06); }
+  body.light .kpi-icon { opacity: 0.25; }
+
+  /* ============ THEME: PRIORITY (yellow brand banner, white below) ============ */
+  body.priority {
+    --bg: #f5f5f7;
+    --panel: #ffffff;
+    --panel-2: #fffbe8;
+    --panel-3: #fff5cc;
+    --border: #e2e5ea;
+    --border-strong: #cdd2da;
+    --text: #1a1a1f;
+    --text-dim: #5c6370;
+    --text-muted: #8a909a;
+    --red-bg: #fdecea;
+    --green-bg: #e8f7ee;
+  }
+  body.priority .top-bar {
+    background: linear-gradient(135deg, var(--yellow), var(--yellow-soft));
+    border-bottom: 3px solid #1a1a1f;
+  }
+  body.priority .top-bar .brand-name,
+  body.priority .top-bar .brand-sub { color: #1a1a1f; }
+  body.priority .vtab { background: rgba(255,255,255,0.6); border-color: #1a1a1f; color: #1a1a1f; }
+  body.priority .vtab.active { background: #1a1a1f; color: var(--yellow); border-color: #1a1a1f; }
+  body.priority .save-indicator { background: rgba(255,255,255,0.7); border-color: #1a1a1f; color: #1a1a1f; }
+  body.priority .top-actions .btn { background: rgba(255,255,255,0.8); color: #1a1a1f; border-color: #1a1a1f; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { min-height: 100%; }
   body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 13px; -webkit-font-smoothing: antialiased; }
@@ -113,9 +156,28 @@
     cursor: pointer;
   }
   .filter-bar .filter-actions { display: flex; gap: 6px; margin-left: auto; }
+  .filter-bar .checkbox-label { flex-direction: row; align-items: center; gap: 6px; padding-top: 12px; cursor: pointer; }
+  .filter-bar .checkbox-label input { margin: 0; cursor: pointer; }
+  .filter-bar .checkbox-label span { font-size: 11px; }
+  .age-pill {
+    display: inline-block; padding: 1px 6px; font-family: 'Oswald', sans-serif;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    background: var(--panel-3); color: var(--text-dim);
+  }
+  .age-pill.warn { background: rgba(230,126,34,0.18); color: var(--orange); }
+  .age-pill.danger { background: rgba(231,76,60,0.18); color: var(--red); }
+  .trend-pill {
+    display: inline-block; padding: 1px 5px; font-family: 'Oswald', sans-serif;
+    font-weight: 700; font-size: 10px; letter-spacing: 0.04em; margin-left: 4px;
+  }
+  .trend-pill.up   { background: rgba(46,204,113,0.18); color: var(--green-bright); }
+  .trend-pill.down { background: rgba(231,76,60,0.18); color: var(--red); }
+  .trend-pill.flat { background: var(--panel-3); color: var(--text-muted); }
+  .trend-pill.new  { background: rgba(255,194,14,0.18); color: var(--yellow); }
 
   /* KPI GRID */
   .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .kpi-grid.kpi-grid-5 { grid-template-columns: repeat(5, 1fr); }
   .kpi {
     background: var(--panel); border: 1px solid var(--border);
     border-left: 3px solid var(--border-strong);
@@ -126,6 +188,8 @@
   .kpi.success { border-left-color: var(--green-bright); }
   .kpi.warn { border-left-color: var(--orange); }
   .kpi.info { border-left-color: var(--st-prop); }
+  .kpi.danger { border-left-color: var(--red); }
+  .kpi.danger .kpi-value { color: var(--red); }
   .kpi-icon { position: absolute; top: 10px; right: 14px; font-size: 22px; opacity: 0.18; }
   .kpi-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); }
   .kpi-value { font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 700; line-height: 1; color: var(--text); }
@@ -241,11 +305,14 @@
     background: var(--panel);
   }
   .data-table tbody tr:hover td { background: var(--panel-2); }
+  .data-table tbody tr.clickable-row { cursor: pointer; }
+  .data-table tbody tr.clickable-row:hover td { background: var(--panel-3); }
   .data-table tbody tr.stage-lead td        { border-left: 3px solid var(--st-lead); }
   .data-table tbody tr.stage-qualification td { border-left: 3px solid var(--st-qual); }
   .data-table tbody tr.stage-proposal td    { border-left: 3px solid var(--st-prop); }
   .data-table tbody tr.stage-negotiation td { border-left: 3px solid var(--st-neg); }
   .data-table tbody tr.stage-won td         { border-left: 3px solid var(--st-won); }
+  .data-table tbody tr.stage-lost td        { border-left: 3px solid var(--st-lost); opacity: 0.7; }
   .data-table tbody tr.stage-municipal td   { border-left: 3px solid var(--st-muni); }
   .data-table tbody tr.stage-issue td       { border-left: 3px solid var(--st-issue); }
   .data-table tbody tr td:first-child { border-left-style: solid; }
@@ -262,6 +329,7 @@
   .stage-badge.proposal      { background: var(--st-prop); color: white; }
   .stage-badge.negotiation   { background: var(--st-neg); color: white; }
   .stage-badge.won           { background: var(--st-won); }
+  .stage-badge.lost          { background: var(--st-lost); color: white; }
   .stage-badge.municipal     { background: var(--st-muni); color: white; }
   .stage-badge.issue         { background: var(--st-issue); color: white; }
   .row-actions { display: flex; gap: 4px; }
@@ -306,27 +374,140 @@
 
   .hidden { display: none !important; }
 
+  /* Inline toast */
+  .inline-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--green-bright); color: var(--black);
+    padding: 12px 22px; border: 2px solid var(--black);
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 14px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+    z-index: 2000;
+  }
+  .inline-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* LEADERBOARD */
+  .leaderboard-table th { cursor: pointer; user-select: none; }
+  .leaderboard-table th:hover { color: var(--yellow); }
+  .leaderboard-table th.sort-asc::after  { content: ' ▲'; color: var(--yellow); }
+  .leaderboard-table th.sort-desc::after { content: ' ▼'; color: var(--yellow); }
+  .leaderboard-table th.num, .leaderboard-table td.num { text-align: right; }
+  .leaderboard-table td.rep-name { font-family: 'Oswald', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .leaderboard-table tr.top-rep td { background: linear-gradient(90deg, rgba(255,194,14,0.10), transparent); }
+  .leaderboard-table tr.top-rep td:first-child { border-left: 3px solid var(--yellow); }
+  .leaderboard-table tr.stale-warning td { color: var(--orange); }
+  .lb-rank { font-family: 'Oswald', sans-serif; font-weight: 800; font-size: 14px; color: var(--text-dim); }
+  .lb-rank.gold { color: var(--yellow); }
+
+  /* THEME PICKER */
+  .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .theme-option {
+    background: var(--panel-2); border: 2px solid var(--border-strong);
+    padding: 14px; cursor: pointer; transition: all 0.15s;
+  }
+  .theme-option:hover { border-color: var(--text-dim); }
+  .theme-option.active { border-color: var(--yellow); background: rgba(255,194,14,0.08); }
+  .theme-preview {
+    width: 100%; height: 80px; border: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 4px; padding: 6px; margin-bottom: 10px;
+  }
+  .theme-preview-dark { background: #0d0d0d; }
+  .theme-preview-dark .tp-bar { height: 14px; background: #161616; }
+  .theme-preview-dark .tp-card { height: 22px; background: #1f1f1f; border-left: 3px solid #FFC20E; }
+  .theme-preview-light { background: #f5f5f7; }
+  .theme-preview-light .tp-bar { height: 14px; background: #ffffff; border-bottom: 1px solid #e2e5ea; }
+  .theme-preview-light .tp-card { height: 22px; background: #ffffff; border: 1px solid #e2e5ea; border-left: 3px solid #FFC20E; }
+  .theme-preview-priority { background: #f5f5f7; }
+  .theme-preview-priority .tp-bar { height: 14px; background: linear-gradient(135deg, #FFC20E, #FFD752); border-bottom: 2px solid #1a1a1f; }
+  .theme-preview-priority .tp-card { height: 22px; background: #ffffff; border: 1px solid #e2e5ea; border-left: 3px solid #FFC20E; }
+  .theme-label { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text); }
+  .theme-desc { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* SETTINGS REP LIST */
+  .settings-rep-list {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  }
+  .settings-rep-chip {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 12px; background: var(--panel-2); border: 1px solid var(--border-strong);
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--text);
+  }
+  .settings-rep-chip .rep-deals-count { font-size: 9px; color: var(--text-muted); font-weight: 600; }
+  .settings-rep-chip .remove-rep {
+    background: transparent; border: 1px solid transparent; color: var(--text-muted);
+    cursor: pointer; padding: 2px 6px; font-size: 11px;
+  }
+  .settings-rep-chip .remove-rep:hover { color: var(--red); border-color: var(--red); }
+
+  @media (max-width: 1199px) {
+    .theme-grid { grid-template-columns: 1fr; }
+    .settings-rep-list { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 700px) { .settings-rep-list { grid-template-columns: 1fr; } }
+
+  /* ============ PRINT STYLES ============ */
+  @media print {
+    body, body.light, body.priority {
+      background: #ffffff !important; color: #000000 !important;
+      --bg: #ffffff; --panel: #ffffff; --panel-2: #fafafa; --panel-3: #f0f0f0;
+      --text: #000000; --text-dim: #333333; --text-muted: #666666;
+      --border: #cccccc; --border-strong: #999999;
+    }
+    .top-bar, .filter-bar, .top-actions, .vtab, .view-tabs,
+    #editModal, .inline-toast, .row-actions, .icon-btn,
+    [data-preset], #dashCSV, #dashPrint, #lbCSV, #lbClearFilters,
+    #dashClearFilters { display: none !important; }
+    .panel, .panel-head, .panel-body, .kpi { box-shadow: none !important; page-break-inside: avoid; }
+    .kpi-grid { page-break-inside: avoid; }
+    .data-table tbody td, .data-table thead th { border: 1px solid #ccc !important; background: #fff !important; }
+    .stage-badge { border: 1px solid #000; }
+    .timeline { page-break-inside: avoid; }
+    main { padding: 0; }
+    @page { size: landscape; margin: 0.5in; }
+    /* Show only the active view */
+    section.hidden { display: none !important; }
+    /* Hide auxiliary content not needed in printout */
+    .clickable-row { cursor: default; }
+    body::before {
+      content: 'PRIORITY PIPELINE — ' attr(data-print-title); display: block;
+      font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      padding-bottom: 12px; border-bottom: 3px solid #000; margin-bottom: 18px;
+    }
+  }
+
   /* DEAL DETAIL MODAL */
   .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
   .modal-mask.open { display: flex; }
   .modal {
     background: var(--panel); border: 2px solid var(--yellow);
-    width: 100%; max-width: 600px; max-height: 92vh; overflow: auto;
+    width: 100%; max-width: 760px; max-height: 92vh; overflow: hidden;
+    display: flex; flex-direction: column;
   }
   .modal h3 {
     font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--yellow);
     text-transform: uppercase; letter-spacing: 0.08em;
     padding: 14px 20px; background: var(--panel-2); border-bottom: 1px solid var(--border-strong);
+    display: flex; justify-content: space-between; align-items: center;
   }
-  .modal-body { padding: 18px 20px; }
+  .modal-body { padding: 18px 20px; overflow: auto; flex: 1; }
+  .modal-body .entry-form { grid-template-columns: repeat(4, 1fr); }
   .modal-foot {
     padding: 12px 20px; background: var(--panel-2); border-top: 1px solid var(--border-strong);
     display: flex; gap: 8px; justify-content: flex-end;
   }
+  .modal-close-x {
+    background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim);
+    cursor: pointer; padding: 4px 10px; font-size: 13px; line-height: 1;
+  }
+  .modal-close-x:hover { color: var(--red); border-color: var(--red); }
+  @media (max-width: 700px) { .modal-body .entry-form { grid-template-columns: 1fr; } }
 
   /* RESPONSIVE */
   @media (max-width: 1199px) {
-    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .kpi-grid, .kpi-grid.kpi-grid-5 { grid-template-columns: 1fr 1fr; }
     .grid-2 { grid-template-columns: 1fr; }
     .container-grid { grid-template-columns: repeat(3, 1fr); }
     .state-map-card { grid-template-columns: 1fr; }
@@ -355,8 +536,10 @@
   </div>
   <div class="view-tabs">
     <button class="vtab active" data-view="dashboard">Executive Dashboard</button>
+    <button class="vtab" data-view="leaderboard">Team Leaderboard</button>
     <button class="vtab" data-view="repDashboard">Rep Dashboard</button>
     <button class="vtab" data-view="entry">Pipeline Entry</button>
+    <button class="vtab" data-view="settings">⚙</button>
   </div>
   <div class="top-actions">
     <div class="save-indicator" id="saveIndicator"><span class="dot"></span><span id="saveText">Saved</span></div>
@@ -378,34 +561,50 @@
       <label>State<select id="dashboardStateFilter"><option value="">All States</option></select></label>
       <div class="filter-actions">
         <button class="btn" id="dashClearFilters">Clear</button>
-        <button class="btn primary" id="dashCSV">Download CSV</button>
+        <button class="btn primary" id="dashCSV">⬇ CSV</button>
+        <button class="btn primary" id="dashPrint">🖨 Print</button>
       </div>
     </div>
+    <div class="filter-bar" style="margin-top:-8px;padding:8px 14px">
+      <span style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.12em;align-self:center">Quick filters</span>
+      <button class="btn small" data-preset="next30">Next 30 Days</button>
+      <button class="btn small" data-preset="next60">Next 60 Days</button>
+      <button class="btn small" data-preset="next90">Next 90 Days</button>
+      <button class="btn small" data-preset="closingSoon">Closing Soon (Prop + Neg)</button>
+      <button class="btn small" data-preset="thisQuarter">This Quarter</button>
+      <button class="btn small" data-preset="stale">Stale 30d+</button>
+    </div>
 
-    <div class="kpi-grid">
+    <div class="kpi-grid kpi-grid-5">
       <div class="kpi primary">
         <div class="kpi-icon">📈</div>
         <div class="kpi-label">Open Opportunities</div>
         <div class="kpi-value" id="mOpen">0</div>
-        <div class="kpi-hint">Filtered by selection</div>
+        <div class="kpi-hint" id="mOpenTrend">Filtered by selection</div>
       </div>
       <div class="kpi success">
         <div class="kpi-icon">💰</div>
         <div class="kpi-label">Monthly Revenue</div>
         <div class="kpi-value" id="mRevenue">$0</div>
-        <div class="kpi-hint">Forecastable MRR</div>
+        <div class="kpi-hint" id="mRevenueTrend">Forecastable MRR</div>
       </div>
       <div class="kpi warn">
         <div class="kpi-icon">🎯</div>
         <div class="kpi-label">Weighted Forecast</div>
         <div class="kpi-value" id="mWeighted">$0</div>
-        <div class="kpi-hint">Revenue × stage %</div>
+        <div class="kpi-hint" id="mWeightedTrend">Revenue × stage %</div>
       </div>
       <div class="kpi info">
         <div class="kpi-icon">📦</div>
         <div class="kpi-label">Containers Needed</div>
         <div class="kpi-value" id="mContainers">0</div>
-        <div class="kpi-hint">Now → Dec 31</div>
+        <div class="kpi-hint">Rolling 12 months</div>
+      </div>
+      <div class="kpi" id="winRateCell">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-label">Win Rate</div>
+        <div class="kpi-value" id="mWinRate">—</div>
+        <div class="kpi-hint" id="mWinRateHint">No closed deals yet</div>
       </div>
     </div>
 
@@ -476,7 +675,7 @@
               <tr>
                 <th>Rep</th><th>Customer</th><th>State</th><th>Contact</th>
                 <th>Containers</th><th>Revenue</th><th>Start</th><th>Entered</th>
-                <th>Stage</th><th>%</th><th>Hrs</th><th>Notes</th>
+                <th>Age</th><th>Next Step</th><th>Stage</th><th>%</th><th>Hrs</th><th>Notes</th>
               </tr>
             </thead>
             <tbody id="detailRows"></tbody>
@@ -492,8 +691,13 @@
       <label>Sales Rep<select id="repDashboardRepFilter"></select></label>
       <label>Date Entered From<input id="repEnteredFromFilter" type="date" /></label>
       <label>Date Entered To<input id="repEnteredToFilter" type="date" /></label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="repOpenOnlyFilter" />
+        <span>Open deals only</span>
+      </label>
       <div class="filter-actions">
         <button class="btn" id="repClearFilters">Clear</button>
+        <button class="btn" id="repClosingSoon">▶ Closing Soon</button>
       </div>
     </div>
 
@@ -556,12 +760,208 @@
             <thead>
               <tr>
                 <th>Customer</th><th>State</th><th>Containers</th><th>Revenue</th>
-                <th>Start</th><th>Entered</th><th>Stage</th><th>%</th><th>Hrs</th><th>Notes</th>
+                <th>Start</th><th>Entered</th><th>Age</th><th>Next Step</th><th>Stage</th><th>%</th><th>Hrs</th><th>Notes</th>
               </tr>
             </thead>
             <tbody id="repDetailRows"></tbody>
           </table>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TEAM LEADERBOARD ============ -->
+  <section id="leaderboardView" class="hidden">
+    <div class="filter-bar">
+      <label>Date Entered From<input id="lbFromFilter" type="date" /></label>
+      <label>Date Entered To<input id="lbToFilter" type="date" /></label>
+      <div class="filter-actions">
+        <button class="btn" id="lbClearFilters">Clear</button>
+        <button class="btn primary" id="lbCSV">Download CSV</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr)">
+      <div class="kpi primary">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-label">Active Reps</div>
+        <div class="kpi-value" id="lbActiveReps">0</div>
+        <div class="kpi-hint">With ≥ 1 deal</div>
+      </div>
+      <div class="kpi success">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-label">Team Wins</div>
+        <div class="kpi-value" id="lbWins">0</div>
+        <div class="kpi-hint">Closed Won</div>
+      </div>
+      <div class="kpi warn">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-label">Team Forecast</div>
+        <div class="kpi-value" id="lbForecast">$0</div>
+        <div class="kpi-hint">Weighted MRR</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon">💵</div>
+        <div class="kpi-label">Avg Deal Size</div>
+        <div class="kpi-value" id="lbAvgDeal">—</div>
+        <div class="kpi-hint">Forecastable MRR</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon">📅</div>
+        <div class="kpi-label">Avg Sales Cycle</div>
+        <div class="kpi-value" id="lbCycle">—</div>
+        <div class="kpi-hint">Days entered → won</div>
+      </div>
+      <div class="kpi" id="lbWinRateCell">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-label">Team Win Rate</div>
+        <div class="kpi-value" id="lbWinRate">—</div>
+        <div class="kpi-hint" id="lbWinRateHint">No closed</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Rep-by-Rep Performance</div>
+        <div class="panel-meta">click any column header to sort</div>
+      </div>
+      <div class="panel-body" style="padding:0">
+        <div style="overflow:auto">
+          <table class="data-table leaderboard-table">
+            <thead>
+              <tr>
+                <th data-sort="rank">#</th>
+                <th data-sort="rep">Rep</th>
+                <th data-sort="open" class="num">Open</th>
+                <th data-sort="forecast" class="num">Weighted Forecast</th>
+                <th data-sort="won" class="num">Won</th>
+                <th data-sort="lost" class="num">Lost</th>
+                <th data-sort="winrate" class="num">Win %</th>
+                <th data-sort="lead" class="num">Lead</th>
+                <th data-sort="qual" class="num">Qual</th>
+                <th data-sort="prop" class="num">Prop</th>
+                <th data-sort="neg" class="num">Neg</th>
+                <th data-sort="muni" class="num">Muni Hr</th>
+                <th data-sort="issue" class="num">Issue Hr</th>
+                <th data-sort="lastActivity">Last Activity</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:14px">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Forecast by Rep</div>
+          <div class="panel-meta">weighted $</div>
+        </div>
+        <div class="panel-body">
+          <div id="lbForecastBars" class="bar-list"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Stale Deals · 30+ Days</div>
+          <div class="panel-meta">need follow-up</div>
+        </div>
+        <div class="panel-body">
+          <div id="lbStaleDeals" class="deal-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+      <div class="panel-head">
+        <div class="panel-title">Data Hygiene</div>
+        <div class="panel-meta">missing fields by rep</div>
+      </div>
+      <div class="panel-body">
+        <div id="lbDataHygiene"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="settingsView" class="hidden">
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">Appearance</div>
+        <div class="panel-meta">choose your theme</div>
+      </div>
+      <div class="panel-body">
+        <div class="theme-grid">
+          <div class="theme-option" data-theme="dark">
+            <div class="theme-preview theme-preview-dark">
+              <div class="tp-bar"></div><div class="tp-card"></div><div class="tp-card"></div>
+            </div>
+            <div class="theme-label">Dark Mode</div>
+            <div class="theme-desc">Wallboard look · easy on the eyes</div>
+          </div>
+          <div class="theme-option" data-theme="light">
+            <div class="theme-preview theme-preview-light">
+              <div class="tp-bar"></div><div class="tp-card"></div><div class="tp-card"></div>
+            </div>
+            <div class="theme-label">Light Mode</div>
+            <div class="theme-desc">Clean white · printer-friendly</div>
+          </div>
+          <div class="theme-option" data-theme="priority">
+            <div class="theme-preview theme-preview-priority">
+              <div class="tp-bar"></div><div class="tp-card"></div><div class="tp-card"></div>
+            </div>
+            <div class="theme-label">Priority Yellow</div>
+            <div class="theme-desc">Yellow brand banner · light below</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">Sales Reps</div>
+        <div class="panel-meta">manage the active list</div>
+      </div>
+      <div class="panel-body">
+        <div id="settingsRepList" class="settings-rep-list"></div>
+        <div class="add-rep-row" style="margin-top:14px">
+          <label>Add Sales Rep<input id="settingsNewRep" placeholder="Enter rep name" /></label>
+          <button class="btn primary" id="settingsAddRep">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-head">
+        <div class="panel-title">Data</div>
+        <div class="panel-meta">backup &amp; reset</div>
+      </div>
+      <div class="panel-body">
+        <p style="color:var(--text-dim);font-size:12px;line-height:1.6;margin-bottom:14px">
+          All pipeline data is currently saved to your browser's local storage. To share with the team or back up to GitHub,
+          use Export Backup. To migrate to real-time multi-user editing, see the Firestore setup notes inside the source code
+          (the comment block above <code>const pipelineStore = LocalStoreImpl;</code>).
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn primary" id="settingsExport">⬇ Export Backup (JSON)</button>
+          <button class="btn" id="settingsImport">⬆ Import Backup</button>
+          <button class="btn danger" id="settingsClearData">🗑 Clear All Data</button>
+        </div>
+        <div style="margin-top:14px;font-size:11px;color:var(--text-muted)">
+          <div id="settingsStorageInfo"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">About</div>
+      </div>
+      <div class="panel-body" style="font-size:12px;color:var(--text-dim);line-height:1.6">
+        <p><strong style="color:var(--text)">Priority Pipeline · v2</strong></p>
+        <p>Built to match the Sales Wallboard. Same yellow accent (#FFC20E), Oswald display font, Inter body.</p>
+        <p style="margin-top:10px">Press <kbd style="background:var(--panel-2);padding:1px 6px;border:1px solid var(--border);font-size:11px">Esc</kbd> anywhere to close the edit modal.</p>
       </div>
     </div>
   </section>
@@ -584,6 +984,8 @@
           <label>Expected Start Date<input id="startInput" type="date" /></label>
           <label>Date Entered<input id="enteredInput" type="date" /></label>
           <label>Pipeline Stage<select id="stageInput"></select></label>
+          <label>Next Step Date<input id="nextStepInput" type="date" /></label>
+          <label class="span-2">Next Step / Follow-up<input id="nextStepNoteInput" placeholder="e.g., Decision committee meets Tuesday" /></label>
           <label id="timeSpentLabel" class="hidden">Time Spent (hrs)<input id="timeSpentInput" type="number" min="0" step="0.25" placeholder="Required for Municipal/Issue" /></label>
           <label class="full">
             Containers / Sizes Needed
@@ -629,6 +1031,45 @@
 
 </main>
 
+<!-- ========== EDIT MODAL ========== -->
+<div class="modal-mask" id="editModal">
+  <div class="modal">
+    <h3>
+      <span>Edit Opportunity</span>
+      <button class="modal-close-x" id="editCloseX" type="button">✕</button>
+    </h3>
+    <div class="modal-body">
+      <form id="editForm" class="entry-form" onsubmit="return false">
+        <input type="hidden" id="editId" />
+        <label>Sales Rep<select id="editRep"></select></label>
+        <label>Customer Name<input id="editCustomer" /></label>
+        <label class="span-2">Address / Customer #<input id="editAddress" /></label>
+        <label class="span-2">Contact Info<input id="editContact" /></label>
+        <label>State<select id="editState"></select></label>
+        <label>Monthly Revenue ($)<input id="editRevenue" type="number" min="0" step="50" /></label>
+        <label>Expected Start Date<input id="editStart" type="date" /></label>
+        <label>Date Entered<input id="editEntered" type="date" /></label>
+        <label>Pipeline Stage<select id="editStage"></select></label>
+        <label>Confidence Override (%)<input id="editConfidence" type="number" min="0" max="100" step="5" placeholder="leave blank = use stage %" /></label>
+        <label>Next Step Date<input id="editNextStep" type="date" /></label>
+        <label class="span-3">Next Step / Follow-up<input id="editNextStepNote" placeholder="e.g., Send pricing by Friday" /></label>
+        <label id="editTimeSpentLabel" class="hidden">Time Spent (hrs)<input id="editTimeSpent" type="number" min="0" step="0.25" /></label>
+        <label class="full">
+          Containers / Sizes Needed
+          <div id="editContainerInputs"></div>
+          <button type="button" class="btn small" id="editAddContainerBtn">+ Add another container size</button>
+        </label>
+        <label class="full">Rep Notes<textarea id="editNotes" rows="3"></textarea></label>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn danger" id="editDeleteBtn" type="button">✕ Delete</button>
+      <button class="btn" id="editCancelBtn" type="button">Cancel</button>
+      <button class="btn primary" id="editSaveBtn" type="button">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* =========================================================================
  *  PRIORITY PIPELINE  ·  v2 dark/yellow rebuild
@@ -656,17 +1097,19 @@ const QUANTITIES = Array.from({ length: 30 }, (_, i) => String(i + 1));
 const STATES = ['MI', 'OH', 'IN', 'IL', 'WI', 'PA', 'KY', 'TN', 'KS', 'MO', 'Other'];
 
 const STAGES = {
-  'Lead / Prospecting':       { pct: 15,   cls: 'lead',          label: 'Lead' },
-  'Qualification':            { pct: 40,   cls: 'qualification', label: 'Qualification' },
-  'Proposal / Quote Sent':    { pct: 60,   cls: 'proposal',      label: 'Proposal' },
-  'Negotiation / Final Review': { pct: 80, cls: 'negotiation',   label: 'Negotiation' },
-  'Closed Won':               { pct: 100,  cls: 'won',           label: 'Closed Won' },
-  'Municipal Work':           { pct: null, cls: 'municipal',     label: 'Municipal' },
-  'Service Issue':            { pct: null, cls: 'issue',         label: 'Service Issue' }
+  'Lead / Prospecting':         { pct: 15,   cls: 'lead',          label: 'Lead' },
+  'Qualification':              { pct: 40,   cls: 'qualification', label: 'Qualification' },
+  'Proposal / Quote Sent':      { pct: 60,   cls: 'proposal',      label: 'Proposal' },
+  'Negotiation / Final Review': { pct: 80,   cls: 'negotiation',   label: 'Negotiation' },
+  'Closed Won':                 { pct: 100,  cls: 'won',           label: 'Closed Won' },
+  'Closed Lost':                { pct: 0,    cls: 'lost',          label: 'Closed Lost' },
+  'Municipal Work':             { pct: null, cls: 'municipal',     label: 'Municipal' },
+  'Service Issue':              { pct: null, cls: 'issue',         label: 'Service Issue' }
 };
 const STAGE_COLOR_VAR = {
   lead: '--st-lead', qualification: '--st-qual', proposal: '--st-prop',
-  negotiation: '--st-neg', won: '--st-won', municipal: '--st-muni', issue: '--st-issue'
+  negotiation: '--st-neg', won: '--st-won', lost: '--st-lost',
+  municipal: '--st-muni', issue: '--st-issue'
 };
 
 /* ============== SAMPLE DATA (only used on very first load) ============== */
@@ -799,6 +1242,15 @@ function niceDate(d) {
 function containersText(items) {
   return (items || []).filter(x => x.size && x.qty).map(x => `${x.qty} × ${x.size}`).join(', ');
 }
+// Merge duplicate sizes — prevents accidental double-counting of demand
+function mergeContainers(items) {
+  const map = new Map();
+  (items || []).forEach(c => {
+    if (!c.size || !c.qty) return;
+    map.set(c.size, (map.get(c.size) || 0) + Number(c.qty));
+  });
+  return Array.from(map.entries()).map(([size, qty]) => ({ size, qty }));
+}
 function throughYearEnd(o) {
   return !!o.start && o.start >= TODAY && o.start <= yearEnd();
 }
@@ -812,18 +1264,40 @@ function escHTML(s) {
 /* =========================================================================
  *  FILTERED VIEWS
  * ========================================================================= */
+// Quick-filter "preset" can override raw filter inputs
+let dashPreset = null; // 'next30' | 'next60' | 'next90' | 'closingSoon' | 'thisQuarter' | 'stale' | null
 function filteredOpps() {
   const rep   = document.getElementById('dashboardRepFilter').value || 'All Sales Reps';
   const from  = document.getElementById('enteredFromFilter').value;
   const to    = document.getElementById('enteredToFilter').value;
   const stage = document.getElementById('dashboardStageFilter').value;
   const st    = document.getElementById('dashboardStateFilter').value;
+  const today = new Date(TODAY);
+  const inDays = (n) => { const d = new Date(today); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); };
+  const quarterStart = (() => { const m = today.getMonth(); const qm = Math.floor(m/3)*3; return new Date(today.getFullYear(), qm, 1).toISOString().slice(0,10); })();
+  const quarterEnd = (() => { const m = today.getMonth(); const qm = Math.floor(m/3)*3 + 2; return new Date(today.getFullYear(), qm + 1, 0).toISOString().slice(0,10); })();
+
   return state.opportunities.filter(o => {
     if (rep !== 'All Sales Reps' && o.rep !== rep) return false;
     if (from && o.entered < from) return false;
     if (to && o.entered > to) return false;
     if (stage && o.stage !== stage) return false;
     if (st && o.state !== st) return false;
+    // Preset filters
+    if (dashPreset === 'next30')  { if (!o.start || o.start < TODAY || o.start > inDays(30)) return false; }
+    if (dashPreset === 'next60')  { if (!o.start || o.start < TODAY || o.start > inDays(60)) return false; }
+    if (dashPreset === 'next90')  { if (!o.start || o.start < TODAY || o.start > inDays(90)) return false; }
+    if (dashPreset === 'closingSoon') {
+      if (!['Proposal / Quote Sent', 'Negotiation / Final Review'].includes(o.stage)) return false;
+    }
+    if (dashPreset === 'thisQuarter') {
+      if (!o.start || o.start < quarterStart || o.start > quarterEnd) return false;
+    }
+    if (dashPreset === 'stale') {
+      if (['Closed Won', 'Closed Lost', 'Service Issue'].includes(o.stage)) return false;
+      const age = dealAgeFromEntered(o);
+      if (age === null || age < 30) return false;
+    }
     return true;
   });
 }
@@ -831,21 +1305,99 @@ function repDashboardOpps() {
   const rep  = document.getElementById('repDashboardRepFilter').value;
   const from = document.getElementById('repEnteredFromFilter').value;
   const to   = document.getElementById('repEnteredToFilter').value;
-  return state.opportunities.filter(o => o.rep === rep && (!from || o.entered >= from) && (!to || o.entered <= to));
+  const openOnly = document.getElementById('repOpenOnlyFilter').checked;
+  return state.opportunities.filter(o => {
+    if (o.rep !== rep) return false;
+    if (from && o.entered < from) return false;
+    if (to && o.entered > to) return false;
+    if (openOnly && ['Closed Won', 'Closed Lost', 'Service Issue'].includes(o.stage)) return false;
+    return true;
+  });
 }
 
 /* =========================================================================
  *  RENDERERS · EXECUTIVE DASHBOARD
  * ========================================================================= */
+// Trend badge HTML for KPI tiles
+function trendBadge(curr, prev, isMoney) {
+  if (prev === 0 || prev == null) {
+    return curr > 0 ? `<span class="trend-pill new">NEW</span>` : `<span class="trend-pill flat">—</span>`;
+  }
+  const delta = ((curr - prev) / prev) * 100;
+  if (Math.abs(delta) < 1) return `<span class="trend-pill flat">▬ FLAT</span>`;
+  const dir = delta > 0 ? 'up' : 'down';
+  const arrow = delta > 0 ? '▲' : '▼';
+  return `<span class="trend-pill ${dir}">${arrow} ${Math.abs(delta).toFixed(0)}%</span>`;
+}
+
 function renderDashboard() {
   const data = filteredOpps();
   const fd = forecastable(data);
-  const open = data.filter(o => !['Closed Won', 'Municipal Work', 'Service Issue'].includes(o.stage));
-  const containers = data.filter(throughYearEnd).flatMap(o => o.containers || []);
-  document.getElementById('mOpen').textContent = open.length;
-  document.getElementById('mRevenue').textContent = money(fd.reduce((s, o) => s + Number(o.revenue || 0), 0));
-  document.getElementById('mWeighted').textContent = money(fd.reduce((s, o) => s + Number(o.revenue || 0) * (STAGES[o.stage].pct / 100), 0));
+  // Open = anything not in a terminal stage (Won, Lost, Municipal, Issue)
+  const open = data.filter(o => !['Closed Won', 'Closed Lost', 'Municipal Work', 'Service Issue'].includes(o.stage));
+  // Rolling next-12-month window for container demand
+  const today = new Date(TODAY);
+  const nextYear = new Date(today); nextYear.setFullYear(today.getFullYear() + 1);
+  const horizonEnd = nextYear.toISOString().slice(0, 10);
+  const containers = data
+    .filter(o => o.start && o.start >= TODAY && o.start <= horizonEnd)
+    .flatMap(o => o.containers || []);
+
+  const openCount = open.length;
+  const revenueTotal = fd.reduce((s, o) => s + Number(o.revenue || 0), 0);
+  const weightedTotal = fd.reduce((s, o) => s + Number(o.revenue || 0) * ((effectivePct(o) ?? 0) / 100), 0);
+
+  // Prior-period comparison: opportunities entered in the prior 30-day window
+  // before the most recent activity. Simple and useful — doesn't depend on filters.
+  const monthAgo = new Date(today); monthAgo.setDate(monthAgo.getDate() - 30);
+  const twoMonthsAgo = new Date(today); twoMonthsAgo.setDate(twoMonthsAgo.getDate() - 60);
+  const monthAgoStr = monthAgo.toISOString().slice(0,10);
+  const twoMonthsAgoStr = twoMonthsAgo.toISOString().slice(0,10);
+  const repFilter = document.getElementById('dashboardRepFilter').value || 'All Sales Reps';
+  const stageFilter = document.getElementById('dashboardStageFilter').value;
+  const stateFilter = document.getElementById('dashboardStateFilter').value;
+  const baseMatch = o => (repFilter === 'All Sales Reps' || o.rep === repFilter) &&
+                        (!stageFilter || o.stage === stageFilter) &&
+                        (!stateFilter || o.state === stateFilter);
+  const currPeriod = state.opportunities.filter(o => baseMatch(o) && o.entered >= monthAgoStr);
+  const priorPeriod = state.opportunities.filter(o => baseMatch(o) && o.entered >= twoMonthsAgoStr && o.entered < monthAgoStr);
+  const priorFd = priorPeriod.filter(o => STAGES[o.stage] && STAGES[o.stage].pct !== null);
+  const currFd = currPeriod.filter(o => STAGES[o.stage] && STAGES[o.stage].pct !== null);
+  const priorOpenCount = priorPeriod.filter(o => !['Closed Won','Closed Lost','Municipal Work','Service Issue'].includes(o.stage)).length;
+  const currOpenCount = currPeriod.filter(o => !['Closed Won','Closed Lost','Municipal Work','Service Issue'].includes(o.stage)).length;
+  const priorRev = priorFd.reduce((s,o) => s + Number(o.revenue || 0), 0);
+  const currRev = currFd.reduce((s,o) => s + Number(o.revenue || 0), 0);
+  const priorWtd = priorFd.reduce((s,o) => s + Number(o.revenue || 0) * ((effectivePct(o) ?? 0) / 100), 0);
+  const currWtd = currFd.reduce((s,o) => s + Number(o.revenue || 0) * ((effectivePct(o) ?? 0) / 100), 0);
+
+  document.getElementById('mOpen').textContent = openCount;
+  document.getElementById('mOpenTrend').innerHTML = `Last 30d vs prior 30d: ${trendBadge(currOpenCount, priorOpenCount, false)}`;
+  document.getElementById('mRevenue').textContent = money(revenueTotal);
+  document.getElementById('mRevenueTrend').innerHTML = `Last 30d vs prior 30d: ${trendBadge(currRev, priorRev, true)}`;
+  document.getElementById('mWeighted').textContent = money(weightedTotal);
+  document.getElementById('mWeightedTrend').innerHTML = `Last 30d vs prior 30d: ${trendBadge(currWtd, priorWtd, true)}`;
   document.getElementById('mContainers').textContent = containers.reduce((s, c) => s + Number(c.qty || 0), 0);
+
+  // Win Rate
+  const won = data.filter(o => o.stage === 'Closed Won').length;
+  const lost = data.filter(o => o.stage === 'Closed Lost').length;
+  const totalClosed = won + lost;
+  const winRateEl = document.getElementById('mWinRate');
+  const winHintEl = document.getElementById('mWinRateHint');
+  const winCell = document.getElementById('winRateCell');
+  winCell.classList.remove('success', 'warn', 'danger');
+  if (totalClosed === 0) {
+    winRateEl.textContent = '—';
+    winHintEl.textContent = 'No closed deals yet';
+  } else {
+    const rate = (won / totalClosed) * 100;
+    winRateEl.textContent = Math.round(rate) + '%';
+    winHintEl.textContent = `${won} won · ${lost} lost`;
+    if (rate >= 60) winCell.classList.add('success');
+    else if (rate >= 35) winCell.classList.add('warn');
+    else winCell.classList.add('danger');
+  }
+
   renderStageBars(data, 'stageBars', 'stageLegend');
   renderTopDeals(data);
   renderTimeline(data);
@@ -874,7 +1426,12 @@ function renderStageBars(data, barsId, legendId) {
 }
 
 function renderTopDeals(data) {
-  const deals = forecastable(data).filter(throughYearEnd).sort((a, b) => Number(b.revenue || 0) - Number(a.revenue || 0)).slice(0, 5);
+  // "Upcoming" = forecastable, not yet won/lost, starts before year end
+  const deals = forecastable(data)
+    .filter(o => !['Closed Won', 'Closed Lost'].includes(o.stage))
+    .filter(throughYearEnd)
+    .sort((a, b) => Number(b.revenue || 0) - Number(a.revenue || 0))
+    .slice(0, 5);
   const el = document.getElementById('topDeals');
   if (!deals.length) {
     el.innerHTML = '<div style="color:var(--text-muted);font-size:11px;padding:8px 0;text-transform:uppercase;letter-spacing:0.1em">No forecastable upcoming sales yet.</div>';
@@ -893,22 +1450,34 @@ function renderTopDeals(data) {
 }
 
 function renderTimeline(data) {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const counts = Array(12).fill(0);
-  const mrr = Array(12).fill(0);
-  data.filter(throughYearEnd).forEach(o => {
-    const m = new Date(o.start + 'T00:00:00').getMonth();
-    counts[m]++;
-    if (STAGES[o.stage] && STAGES[o.stage].pct !== null) mrr[m] += Number(o.revenue || 0);
+  // Rolling next-12-month window starting from the current month
+  const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const today = new Date(TODAY);
+  const startY = today.getFullYear();
+  const startM = today.getMonth();
+  // Build 12 buckets each labelled with month + year suffix when crossing
+  const buckets = [];
+  for (let i = 0; i < 12; i++) {
+    const m = (startM + i) % 12;
+    const y = startY + Math.floor((startM + i) / 12);
+    buckets.push({ y, m, label: monthAbbr[m] + (m === 0 || i === 0 ? ` '${String(y).slice(2)}` : ''), count: 0, mrr: 0 });
+  }
+  data.forEach(o => {
+    if (!o.start) return;
+    const d = new Date(o.start + 'T00:00:00');
+    if (isNaN(d)) return;
+    const idx = buckets.findIndex(b => b.y === d.getFullYear() && b.m === d.getMonth());
+    if (idx === -1) return;
+    buckets[idx].count++;
+    if (effectivePct(o) !== null) buckets[idx].mrr += Number(o.revenue || 0);
   });
-  const max = Math.max(1, ...counts);
-  const currentMonth = new Date().getMonth();
-  document.getElementById('timeline').innerHTML = counts.map((c, i) => `
-    <div class="month-col ${i === currentMonth ? 'current' : ''}">
-      <div class="month-mrr">${shortMoney(mrr[i])}</div>
-      <div class="month-count">${c} ${c === 1 ? 'start' : 'starts'}</div>
-      <div class="month-bar-wrap"><div class="month-bar ${c === 0 ? 'empty' : ''}" style="height:${4 + (c / max) * 156}px"></div></div>
-      <div class="month-label">${months[i]}</div>
+  const max = Math.max(1, ...buckets.map(b => b.count));
+  document.getElementById('timeline').innerHTML = buckets.map((b, i) => `
+    <div class="month-col ${i === 0 ? 'current' : ''}">
+      <div class="month-mrr">${shortMoney(b.mrr)}</div>
+      <div class="month-count">${b.count} ${b.count === 1 ? 'start' : 'starts'}</div>
+      <div class="month-bar-wrap"><div class="month-bar ${b.count === 0 ? 'empty' : ''}" style="height:${4 + (b.count / max) * 156}px"></div></div>
+      <div class="month-label">${b.label}</div>
     </div>
   `).join('');
 }
@@ -936,22 +1505,32 @@ function renderStateRevenue(data) {
   const rows = Object.entries(totals).sort((a, b) => b[1] - a[1]);
   const display = rows.length ? rows : [['No Data', 0]];
   const max = Math.max(1, ...display.map(x => x[1]));
-  // Bubble layout
-  const positions = [
-    { left: 12, top: 18 }, { left: 42, top: 8  }, { left: 70, top: 26 },
-    { left: 22, top: 56 }, { left: 56, top: 60 }, { left: 78, top: 12 }
-  ];
-  document.getElementById('stateBubbles').innerHTML = display.slice(0, 6).map((row, i) => {
-    const size = 70 + (row[1] / max) * 80;
-    const pos = positions[i % positions.length];
+
+  // Pack ALL states into the bubble area using deterministic pseudo-random positions
+  // (hash of state code → stable position so they don't jump on rerender).
+  const board = document.getElementById('stateBubbles');
+  function hashPos(seed) {
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) h = ((h << 5) - h) + seed.charCodeAt(i);
+    return Math.abs(h);
+  }
+  const baseSize = display.length > 8 ? 56 : 70;
+  const sizeRange = display.length > 8 ? 50 : 80;
+  board.innerHTML = display.map(([state, mrr], i) => {
+    const size = baseSize + (mrr / max) * sizeRange;
+    const seed = state + i;
+    const h = hashPos(seed);
+    // Constrain so bubbles don't go off-edge (with size accounted for)
+    const left = 6 + (h % 80);
+    const top  = 8 + ((h >> 5) % 70);
     return `
-      <div class="state-bubble" style="width:${size}px;height:${size}px;left:${pos.left}%;top:${pos.top}%">
-        <div class="st-name">${escHTML(row[0])}</div>
-        <div class="st-mrr">${shortMoney(row[1])} MRR</div>
+      <div class="state-bubble" style="width:${size}px;height:${size}px;left:${left}%;top:${top}%" title="${escHTML(state)} — ${money(mrr)} MRR">
+        <div class="st-name" style="font-size:${size > 80 ? 16 : 13}px">${escHTML(state)}</div>
+        <div class="st-mrr" style="font-size:${size > 80 ? 10 : 9}px">${shortMoney(mrr)}</div>
       </div>
     `;
   }).join('');
-  // Bar list
+  // Bar list (all states, no cap)
   document.getElementById('stateRevenueBars').innerHTML = display.map(row => `
     <div class="bar-row">
       <div class="label">${escHTML(row[0])}</div>
@@ -971,7 +1550,7 @@ function renderRepDashboard() {
   const special = data.filter(o => ['Municipal Work', 'Service Issue'].includes(o.stage)).reduce((s, o) => s + Number(o.timeSpent || 0), 0);
   document.getElementById('rOpps').textContent = data.length;
   document.getElementById('rRevenue').textContent = money(fd.reduce((s, o) => s + Number(o.revenue || 0), 0));
-  document.getElementById('rWeighted').textContent = money(fd.reduce((s, o) => s + Number(o.revenue || 0) * (STAGES[o.stage].pct / 100), 0));
+  document.getElementById('rWeighted').textContent = money(fd.reduce((s, o) => s + Number(o.revenue || 0) * ((effectivePct(o) ?? 0) / 100), 0));
   document.getElementById('rSpecialPct').textContent = totalHours ? Math.round((special / totalHours) * 100) + '%' : '0%';
   renderStageBars(data, 'repStageBars', null);
   renderRepTimeBars(data);
@@ -998,28 +1577,306 @@ function renderRepTimeBars(data) {
 }
 
 /* =========================================================================
+ *  RENDERERS · TEAM LEADERBOARD
+ * ========================================================================= */
+let lbSortBy = 'forecast';
+let lbSortDir = 'desc';
+
+function leaderboardOpps() {
+  const from = document.getElementById('lbFromFilter').value;
+  const to   = document.getElementById('lbToFilter').value;
+  return state.opportunities.filter(o => (!from || o.entered >= from) && (!to || o.entered <= to));
+}
+
+function buildRepStats() {
+  const data = leaderboardOpps();
+  const rows = state.reps.map(rep => {
+    const myDeals = data.filter(o => o.rep === rep);
+    const open = myDeals.filter(o => !['Closed Won', 'Closed Lost', 'Municipal Work', 'Service Issue'].includes(o.stage));
+    const fd = forecastable(myDeals);
+    const won  = myDeals.filter(o => o.stage === 'Closed Won').length;
+    const lost = myDeals.filter(o => o.stage === 'Closed Lost').length;
+    const totalClosed = won + lost;
+    const winRate = totalClosed > 0 ? (won / totalClosed) * 100 : null;
+    const forecast = fd.reduce((s, o) => s + Number(o.revenue || 0) * ((effectivePct(o) ?? 0) / 100), 0);
+    const lastActivity = myDeals
+      .map(o => o.updatedAt || o.entered)
+      .filter(Boolean)
+      .sort()
+      .reverse()[0] || null;
+    return {
+      rep, total: myDeals.length, open: open.length, forecast, won, lost, winRate,
+      lead:  myDeals.filter(o => o.stage === 'Lead / Prospecting').length,
+      qual:  myDeals.filter(o => o.stage === 'Qualification').length,
+      prop:  myDeals.filter(o => o.stage === 'Proposal / Quote Sent').length,
+      neg:   myDeals.filter(o => o.stage === 'Negotiation / Final Review').length,
+      muni:  myDeals.filter(o => o.stage === 'Municipal Work').reduce((s, o) => s + Number(o.timeSpent || 0), 0),
+      issue: myDeals.filter(o => o.stage === 'Service Issue').reduce((s, o) => s + Number(o.timeSpent || 0), 0),
+      lastActivity
+    };
+  });
+  return rows;
+}
+
+function renderLeaderboard() {
+  const rows = buildRepStats();
+  const data = leaderboardOpps();
+
+  // KPIs
+  const activeReps = rows.filter(r => r.total > 0).length;
+  const totalWins = rows.reduce((s, r) => s + r.won, 0);
+  const totalLost = rows.reduce((s, r) => s + r.lost, 0);
+  const totalForecast = rows.reduce((s, r) => s + r.forecast, 0);
+  const totalSpecial = rows.reduce((s, r) => s + r.muni + r.issue, 0);
+  const teamWinRate = (totalWins + totalLost) > 0 ? (totalWins / (totalWins + totalLost)) * 100 : null;
+
+  document.getElementById('lbActiveReps').textContent = activeReps;
+  document.getElementById('lbWins').textContent = totalWins;
+  document.getElementById('lbForecast').textContent = money(totalForecast);
+
+  // Avg deal size: average revenue across forecastable opportunities in the leaderboard window
+  const fcdata = data.filter(o => STAGES[o.stage] && STAGES[o.stage].pct !== null && Number(o.revenue || 0) > 0);
+  const avgDeal = fcdata.length ? fcdata.reduce((s,o) => s + Number(o.revenue || 0), 0) / fcdata.length : 0;
+  document.getElementById('lbAvgDeal').textContent = avgDeal ? money(avgDeal) : '—';
+
+  // Avg sales cycle: days from entered → updatedAt for Closed Won deals
+  const cycleData = data.filter(o => o.stage === 'Closed Won' && o.entered);
+  if (cycleData.length === 0) {
+    document.getElementById('lbCycle').textContent = '—';
+  } else {
+    const days = cycleData.map(o => {
+      const closeDate = o.updatedAt ? o.updatedAt.slice(0,10) : TODAY;
+      return Math.max(0, Math.floor((new Date(closeDate) - new Date(o.entered + 'T00:00:00')) / 86400000));
+    });
+    const avgDays = Math.round(days.reduce((a,b) => a+b, 0) / days.length);
+    document.getElementById('lbCycle').textContent = avgDays + 'd';
+  }
+  const wrCell = document.getElementById('lbWinRateCell');
+  const wrEl = document.getElementById('lbWinRate');
+  const wrHint = document.getElementById('lbWinRateHint');
+  wrCell.classList.remove('success', 'warn', 'danger');
+  if (teamWinRate === null) {
+    wrEl.textContent = '—';
+    wrHint.textContent = 'No closed deals yet';
+  } else {
+    wrEl.textContent = Math.round(teamWinRate) + '%';
+    wrHint.textContent = `${totalWins} won · ${totalLost} lost`;
+    if (teamWinRate >= 60) wrCell.classList.add('success');
+    else if (teamWinRate >= 35) wrCell.classList.add('warn');
+    else wrCell.classList.add('danger');
+  }
+
+  // Sort
+  const sorted = [...rows].sort((a, b) => {
+    let av, bv;
+    if (lbSortBy === 'rep') { av = a.rep; bv = b.rep; }
+    else if (lbSortBy === 'lastActivity') { av = a.lastActivity || ''; bv = b.lastActivity || ''; }
+    else if (lbSortBy === 'winrate') { av = a.winRate ?? -1; bv = b.winRate ?? -1; }
+    else { av = a[lbSortBy] || 0; bv = b[lbSortBy] || 0; }
+    if (av < bv) return lbSortDir === 'asc' ? -1 : 1;
+    if (av > bv) return lbSortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  // Update sort indicators
+  document.querySelectorAll('.leaderboard-table th[data-sort]').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (th.dataset.sort === lbSortBy) th.classList.add(lbSortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+  });
+
+  const today = new Date(TODAY);
+  document.getElementById('leaderboardRows').innerHTML = sorted.map((r, i) => {
+    const isTop = i === 0 && lbSortBy === 'forecast' && lbSortDir === 'desc' && r.forecast > 0;
+    const daysSinceActivity = r.lastActivity ? Math.floor((today - new Date(r.lastActivity)) / 86400000) : null;
+    const isStale = r.total > 0 && daysSinceActivity !== null && daysSinceActivity > 14;
+    return `
+      <tr class="${isTop ? 'top-rep' : ''} ${isStale ? 'stale-warning' : ''}">
+        <td><span class="lb-rank ${isTop ? 'gold' : ''}">${String(i + 1).padStart(2, '0')}</span></td>
+        <td class="rep-name">${escHTML(r.rep)}</td>
+        <td class="num">${r.open}</td>
+        <td class="num money">${money(r.forecast)}</td>
+        <td class="num" style="color:var(--green-bright)">${r.won}</td>
+        <td class="num" style="color:var(--red)">${r.lost}</td>
+        <td class="num">${r.winRate !== null ? Math.round(r.winRate) + '%' : '—'}</td>
+        <td class="num">${r.lead}</td>
+        <td class="num">${r.qual}</td>
+        <td class="num">${r.prop}</td>
+        <td class="num">${r.neg}</td>
+        <td class="num">${r.muni ? r.muni.toFixed(1) : '—'}</td>
+        <td class="num">${r.issue ? r.issue.toFixed(1) : '—'}</td>
+        <td>${r.lastActivity ? niceDate(r.lastActivity.slice(0,10)) + (daysSinceActivity > 14 ? ` <span style="color:var(--orange);font-weight:700">(${daysSinceActivity}d)</span>` : '') : '<span style="color:var(--text-muted)">never</span>'}</td>
+      </tr>
+    `;
+  }).join('');
+
+  // Forecast bars
+  const max = Math.max(1, ...rows.map(r => r.forecast));
+  document.getElementById('lbForecastBars').innerHTML = [...rows]
+    .sort((a, b) => b.forecast - a.forecast)
+    .map(r => `
+      <div class="bar-row">
+        <div class="label">${escHTML(r.rep)}</div>
+        <div class="track"><div class="fill" style="width:${(r.forecast / max) * 100}%;background:linear-gradient(90deg,var(--yellow),#b8870a)"></div></div>
+        <div class="val">${money(r.forecast)}</div>
+      </div>
+    `).join('');
+
+  // Stale deals (open + > 30 days since entered)
+  const stale = data
+    .filter(o => !['Closed Won', 'Closed Lost', 'Municipal Work', 'Service Issue'].includes(o.stage))
+    .map(o => ({ ...o, daysOld: Math.floor((today - new Date(o.entered || TODAY)) / 86400000) }))
+    .filter(o => o.daysOld >= 30)
+    .sort((a, b) => b.daysOld - a.daysOld)
+    .slice(0, 5);
+  const staleEl = document.getElementById('lbStaleDeals');
+  if (stale.length === 0) {
+    staleEl.innerHTML = '<div style="color:var(--text-muted);font-size:11px;padding:8px;text-align:center;text-transform:uppercase;letter-spacing:0.1em">No stale deals — nice work!</div>';
+  } else {
+    staleEl.innerHTML = stale.map(o => `
+      <div class="deal-card clickable-row" data-id="${o.id}" style="cursor:pointer;border-left-color:var(--orange)">
+        <div class="deal-rank" style="background:var(--orange)">${o.daysOld}d</div>
+        <div>
+          <div class="deal-name">${escHTML(o.customer)}</div>
+          <div class="deal-meta">${escHTML(o.rep)} · ${escHTML(o.stage)} · entered ${niceDate(o.entered)}</div>
+        </div>
+        <div class="deal-value">${money(o.revenue)}</div>
+      </div>
+    `).join('');
+  }
+
+  // Data hygiene audit
+  const hygiene = state.reps.map(rep => {
+    const myDeals = data.filter(o => o.rep === rep);
+    const noState   = myDeals.filter(o => !o.state).length;
+    const noContact = myDeals.filter(o => !o.contact || !o.contact.trim()).length;
+    const noStart   = myDeals.filter(o => !o.start && !['Service Issue', 'Closed Lost'].includes(o.stage)).length;
+    const noRevenue = myDeals.filter(o => !Number(o.revenue) && !['Municipal Work', 'Service Issue', 'Closed Lost'].includes(o.stage)).length;
+    const noContainers = myDeals.filter(o => (!o.containers || o.containers.length === 0) && !['Service Issue'].includes(o.stage)).length;
+    const total = noState + noContact + noStart + noRevenue + noContainers;
+    return { rep, total, noState, noContact, noStart, noRevenue, noContainers, dealCount: myDeals.length };
+  }).filter(r => r.total > 0).sort((a, b) => b.total - a.total);
+
+  const hygEl = document.getElementById('lbDataHygiene');
+  if (hygiene.length === 0) {
+    hygEl.innerHTML = `<div style="color:var(--green-bright);font-size:12px;padding:14px;text-align:center;font-weight:600">✓ All data fields are complete across the team. Excellent hygiene.</div>`;
+  } else {
+    hygEl.innerHTML = `
+      <table class="data-table" style="width:100%">
+        <thead>
+          <tr>
+            <th>Rep</th><th class="num">Issues</th><th class="num">No State</th>
+            <th class="num">No Contact</th><th class="num">No Start Date</th>
+            <th class="num">$0 Revenue</th><th class="num">No Containers</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${hygiene.map(h => `
+            <tr>
+              <td class="rep-name">${escHTML(h.rep)}</td>
+              <td class="num"><strong style="color:var(--orange)">${h.total}</strong></td>
+              <td class="num">${h.noState || '—'}</td>
+              <td class="num">${h.noContact || '—'}</td>
+              <td class="num">${h.noStart || '—'}</td>
+              <td class="num">${h.noRevenue || '—'}</td>
+              <td class="num">${h.noContainers || '—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+}
+
+/* =========================================================================
+ *  RENDERERS · SETTINGS
+ * ========================================================================= */
+function renderSettings() {
+  // Active theme
+  document.querySelectorAll('.theme-option').forEach(t => {
+    t.classList.toggle('active', t.dataset.theme === currentTheme());
+  });
+
+  // Rep list with deal count
+  const dealsByRep = {};
+  state.opportunities.forEach(o => { dealsByRep[o.rep] = (dealsByRep[o.rep] || 0) + 1; });
+  document.getElementById('settingsRepList').innerHTML = state.reps.map(rep => `
+    <div class="settings-rep-chip">
+      <div>
+        <div>${escHTML(rep)}</div>
+        <div class="rep-deals-count">${dealsByRep[rep] || 0} ${(dealsByRep[rep] || 0) === 1 ? 'deal' : 'deals'}</div>
+      </div>
+      <button class="remove-rep" data-rep="${escHTML(rep)}" title="Remove rep">✕</button>
+    </div>
+  `).join('');
+
+  // Storage info
+  let bytes = 0;
+  try {
+    bytes = (localStorage.getItem(STORAGE_KEY) || '').length;
+  } catch (e) {}
+  const kb = (bytes / 1024).toFixed(1);
+  const stored = (() => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (e) { return {}; }
+  })();
+  document.getElementById('settingsStorageInfo').innerHTML =
+    `Storage: ${kb} KB · ${state.opportunities.length} opportunities · ${state.reps.length} reps · last saved ${stored.savedAt ? niceDate(stored.savedAt.slice(0,10)) : 'never'}`;
+}
+
+/* =========================================================================
  *  RENDERERS · DETAIL TABLES
  * ========================================================================= */
 function rowClassFor(o) {
   return STAGES[o.stage] ? 'stage-' + STAGES[o.stage].cls : '';
 }
+// Effective probability — use customPct override if set, else fall back to stage default
+function effectivePct(o) {
+  if (o.customPct != null && !isNaN(o.customPct)) return Number(o.customPct);
+  return STAGES[o.stage] && STAGES[o.stage].pct !== null ? STAGES[o.stage].pct : null;
+}
 function pctText(o) {
-  return STAGES[o.stage] && STAGES[o.stage].pct !== null ? STAGES[o.stage].pct + '%' : '—';
+  const p = effectivePct(o);
+  if (p === null) return '—';
+  return p + '%' + (o.customPct != null ? '*' : '');
 }
 function badgeHTML(o) {
   if (!STAGES[o.stage]) return '';
   return `<span class="stage-badge ${STAGES[o.stage].cls}">${escHTML(STAGES[o.stage].label)}</span>`;
 }
+// Days since deal was entered (or last-modified, whichever is more recent)
+function dealAge(o) {
+  const ref = o.updatedAt ? o.updatedAt.slice(0, 10) : o.entered;
+  if (!ref) return null;
+  return Math.floor((new Date(TODAY) - new Date(ref + 'T00:00:00')) / 86400000);
+}
+function dealAgeFromEntered(o) {
+  if (!o.entered) return null;
+  return Math.floor((new Date(TODAY) - new Date(o.entered + 'T00:00:00')) / 86400000);
+}
+
+function ageBadge(o) {
+  const days = dealAgeFromEntered(o);
+  if (days === null) return '<span class="age-pill">—</span>';
+  let cls = '';
+  if (days >= 60) cls = 'danger';
+  else if (days >= 30) cls = 'warn';
+  return `<span class="age-pill ${cls}">${days}d</span>`;
+}
+function nextStepHTML(o) {
+  if (!o.nextStep && !o.nextStepNote) return '<span style="color:var(--text-muted)">—</span>';
+  const dueClass = o.nextStep && o.nextStep < TODAY ? 'style="color:var(--red);font-weight:700"' : '';
+  return `<div ${dueClass}>${o.nextStep ? niceDate(o.nextStep) : ''}</div><div class="small">${escHTML(o.nextStepNote || '')}</div>`;
+}
 
 function renderDetailRows(data, tbodyId, includeRep) {
   const sorted = [...data].sort((a, b) => (b.entered || '').localeCompare(a.entered || '') || (a.start || '9999').localeCompare(b.start || '9999'));
   const tbody = document.getElementById(tbodyId);
+  const colspan = includeRep ? 14 : 12;
   if (!sorted.length) {
-    tbody.innerHTML = `<tr><td colspan="${includeRep ? 12 : 10}" style="text-align:center;color:var(--text-muted);padding:18px">No opportunities match the current filters.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center;color:var(--text-muted);padding:18px">No opportunities match the current filters.</td></tr>`;
     return;
   }
   tbody.innerHTML = sorted.map(o => `
-    <tr class="${rowClassFor(o)}">
+    <tr class="${rowClassFor(o)} clickable-row" data-id="${o.id}" title="Click to edit">
       ${includeRep ? `<td>${escHTML(o.rep)}</td>` : ''}
       <td><span class="customer-name">${escHTML(o.customer)}</span><div class="small">${escHTML(o.address || '')}</div></td>
       <td>${escHTML(o.state || '')}</td>
@@ -1028,12 +1885,120 @@ function renderDetailRows(data, tbodyId, includeRep) {
       <td class="money">${money(o.revenue)}</td>
       <td>${niceDate(o.start)}</td>
       <td>${niceDate(o.entered)}</td>
+      <td>${ageBadge(o)}</td>
+      <td>${nextStepHTML(o)}</td>
       <td>${badgeHTML(o)}</td>
       <td>${pctText(o)}</td>
       <td>${o.timeSpent ? o.timeSpent + ' hr' : '—'}</td>
       <td>${escHTML(o.notes || '')}</td>
     </tr>
   `).join('');
+}
+
+/* =========================================================================
+ *  EDIT MODAL — opens for any opportunity row (edit-in-place)
+ * ========================================================================= */
+function addEditContainerInput(size, qty) {
+  size = size || '8 yd';
+  qty = qty || '1';
+  const div = document.createElement('div');
+  div.className = 'multi-container-row';
+  div.innerHTML = `
+    <select data-edit-container-size>
+      ${CONTAINER_SIZES.map(s => `<option ${s === size ? 'selected' : ''}>${s}</option>`).join('')}
+    </select>
+    <select data-edit-container-qty>
+      ${QUANTITIES.map(q => `<option ${q === String(qty) ? 'selected' : ''}>${q}</option>`).join('')}
+    </select>
+    <button type="button" class="btn small" onclick="this.parentElement.remove()">Remove</button>
+  `;
+  document.getElementById('editContainerInputs').appendChild(div);
+}
+
+function openEditModal(opId) {
+  const op = state.opportunities.find(o => o.id === opId);
+  if (!op) return;
+  // Populate dropdowns based on current state
+  document.getElementById('editRep').innerHTML  = state.reps.map(r => `<option ${r === op.rep ? 'selected' : ''}>${escHTML(r)}</option>`).join('');
+  document.getElementById('editState').innerHTML = STATES.map(s => `<option ${s === op.state ? 'selected' : ''}>${escHTML(s)}</option>`).join('');
+  document.getElementById('editStage').innerHTML = Object.keys(STAGES).map(s => `<option ${s === op.stage ? 'selected' : ''}>${escHTML(s)}</option>`).join('');
+  // Fill text fields
+  document.getElementById('editId').value       = op.id;
+  document.getElementById('editCustomer').value = op.customer || '';
+  document.getElementById('editAddress').value  = op.address || '';
+  document.getElementById('editContact').value  = op.contact || '';
+  document.getElementById('editRevenue').value  = op.revenue || '';
+  document.getElementById('editStart').value    = op.start || '';
+  document.getElementById('editEntered').value  = op.entered || '';
+  document.getElementById('editTimeSpent').value = op.timeSpent || '';
+  document.getElementById('editNotes').value    = op.notes || '';
+  document.getElementById('editNextStep').value = op.nextStep || '';
+  document.getElementById('editNextStepNote').value = op.nextStepNote || '';
+  document.getElementById('editConfidence').value = op.customPct != null ? op.customPct : '';
+  // Container rows
+  document.getElementById('editContainerInputs').innerHTML = '';
+  if (op.containers && op.containers.length) {
+    op.containers.forEach(c => addEditContainerInput(c.size, c.qty));
+  } else {
+    addEditContainerInput();
+  }
+  toggleEditTimeSpentPrompt();
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+}
+function toggleEditTimeSpentPrompt() {
+  const show = ['Municipal Work', 'Service Issue'].includes(document.getElementById('editStage').value);
+  document.getElementById('editTimeSpentLabel').classList.toggle('hidden', !show);
+}
+function saveEditModal() {
+  const opId = document.getElementById('editId').value;
+  const idx = state.opportunities.findIndex(o => o.id === opId);
+  if (idx === -1) { closeEditModal(); return; }
+  const stage = document.getElementById('editStage').value;
+  const timeSpent = Number(document.getElementById('editTimeSpent').value || 0);
+  if (['Municipal Work', 'Service Issue'].includes(stage) && timeSpent <= 0) {
+    alert('Please enter time spent for Municipal Work or Service Issue entries.');
+    return;
+  }
+  const containers = mergeContainers(Array.from(document.querySelectorAll('#editContainerInputs .multi-container-row')).map(row => ({
+    size: row.querySelector('[data-edit-container-size]').value,
+    qty: Number(row.querySelector('[data-edit-container-qty]').value)
+  })).filter(c => c.size && c.qty));
+
+  const confidenceRaw = document.getElementById('editConfidence').value;
+  const customPct = confidenceRaw === '' ? null : Math.max(0, Math.min(100, Number(confidenceRaw)));
+  state.opportunities[idx] = {
+    ...state.opportunities[idx],
+    rep:       document.getElementById('editRep').value,
+    customer:  document.getElementById('editCustomer').value || 'New Customer',
+    address:   document.getElementById('editAddress').value,
+    contact:   document.getElementById('editContact').value,
+    state:     document.getElementById('editState').value,
+    revenue:   Number(document.getElementById('editRevenue').value || 0),
+    start:     document.getElementById('editStart').value,
+    entered:   document.getElementById('editEntered').value || TODAY,
+    stage,
+    timeSpent,
+    containers,
+    notes:        document.getElementById('editNotes').value,
+    nextStep:     document.getElementById('editNextStep').value || '',
+    nextStepNote: document.getElementById('editNextStepNote').value || '',
+    customPct,
+    updatedAt: new Date().toISOString()
+  };
+  persist();
+  closeEditModal();
+  renderAll();
+}
+function deleteFromModal() {
+  const opId = document.getElementById('editId').value;
+  if (!confirm('Delete this opportunity? This cannot be undone.')) return;
+  state.opportunities = state.opportunities.filter(o => o.id !== opId);
+  persist();
+  closeEditModal();
+  renderAll();
 }
 
 /* =========================================================================
@@ -1047,7 +2012,7 @@ function renderEntryRows() {
     return;
   }
   tbody.innerHTML = sorted.map(o => `
-    <tr class="${rowClassFor(o)}" data-id="${o.id}">
+    <tr class="${rowClassFor(o)} clickable-row" data-id="${o.id}" title="Click to edit">
       <td>${escHTML(o.rep)}</td>
       <td><span class="customer-name">${escHTML(o.customer)}</span></td>
       <td>${escHTML(o.address || '')}</td>
@@ -1061,7 +2026,10 @@ function renderEntryRows() {
       <td>${pctText(o)}</td>
       <td>${o.timeSpent ? o.timeSpent + ' hr' : '—'}</td>
       <td>${escHTML(o.notes || '')}</td>
-      <td><div class="row-actions"><button class="icon-btn danger" data-action="delete" title="Delete">✕</button></div></td>
+      <td><div class="row-actions">
+        <button class="icon-btn" data-action="edit" title="Edit">✎</button>
+        <button class="icon-btn danger" data-action="delete" title="Delete">✕</button>
+      </div></td>
     </tr>
   `).join('');
 }
@@ -1087,7 +2055,7 @@ function addContainerInput(size, qty) {
 }
 
 function clearForm() {
-  ['customerInput', 'addressInput', 'contactInput', 'revenueInput', 'startInput', 'notesInput', 'timeSpentInput']
+  ['customerInput', 'addressInput', 'contactInput', 'revenueInput', 'startInput', 'notesInput', 'timeSpentInput', 'nextStepInput', 'nextStepNoteInput']
     .forEach(id => document.getElementById(id).value = '');
   document.getElementById('enteredInput').value = TODAY;
   document.getElementById('stageInput').value = 'Lead / Prospecting';
@@ -1103,10 +2071,10 @@ function addOpportunity() {
     alert('Please enter time spent for Municipal Work or Service Issue entries.');
     return;
   }
-  const containers = Array.from(document.querySelectorAll('.multi-container-row')).map(row => ({
+  const containers = mergeContainers(Array.from(document.querySelectorAll('.multi-container-row')).map(row => ({
     size: row.querySelector('[data-container-size]').value,
     qty: Number(row.querySelector('[data-container-qty]').value)
-  })).filter(c => c.size && c.qty);
+  })).filter(c => c.size && c.qty));
 
   const newOpp = {
     id: id(),
@@ -1121,13 +2089,32 @@ function addOpportunity() {
     stage,
     timeSpent,
     containers,
-    notes:     document.getElementById('notesInput').value
+    notes:     document.getElementById('notesInput').value,
+    nextStep:     document.getElementById('nextStepInput').value || '',
+    nextStepNote: document.getElementById('nextStepNoteInput').value || ''
   };
   state.opportunities.unshift(newOpp);
   persist();
   clearForm();
   renderAll();
-  setView('dashboard');
+  // Stay on Entry view for batch-entry. Show inline toast instead.
+  showToast(`✓ Added "${newOpp.customer}" to ${newOpp.rep}'s pipeline`);
+  // Focus customer field for next entry
+  setTimeout(() => { const c = document.getElementById('customerInput'); if (c) c.focus(); }, 50);
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('inlineToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'inlineToast';
+    toast.className = 'inline-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 2400);
 }
 
 function deleteOpportunity(opId) {
@@ -1228,13 +2215,32 @@ function importBackup(file) {
 }
 
 /* =========================================================================
+ *  THEME
+ * ========================================================================= */
+const THEME_KEY = 'priority_pipeline_theme';
+function currentTheme() {
+  try { return localStorage.getItem(THEME_KEY) || 'dark'; }
+  catch (e) { return 'dark'; }
+}
+function applyTheme(themeName) {
+  const valid = ['dark', 'light', 'priority'];
+  const theme = valid.includes(themeName) ? themeName : 'dark';
+  document.body.classList.remove('light', 'priority');
+  if (theme === 'light') document.body.classList.add('light');
+  else if (theme === 'priority') document.body.classList.add('priority');
+  try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+}
+
+/* =========================================================================
  *  VIEW TABS / DROPDOWNS
  * ========================================================================= */
 function setView(view) {
-  const safe = ['dashboard', 'repDashboard', 'entry'].includes(view) ? view : 'dashboard';
+  const safe = ['dashboard', 'repDashboard', 'entry', 'leaderboard', 'settings'].includes(view) ? view : 'dashboard';
   document.getElementById('dashboardView').classList.toggle('hidden', safe !== 'dashboard');
+  document.getElementById('leaderboardView').classList.toggle('hidden', safe !== 'leaderboard');
   document.getElementById('repDashboardView').classList.toggle('hidden', safe !== 'repDashboard');
   document.getElementById('entryView').classList.toggle('hidden', safe !== 'entry');
+  document.getElementById('settingsView').classList.toggle('hidden', safe !== 'settings');
   document.querySelectorAll('.vtab').forEach(t => t.classList.toggle('active', t.dataset.view === safe));
   renderAll();
 }
@@ -1268,6 +2274,7 @@ function clearDashFilters() {
 function clearRepFilters() {
   document.getElementById('repEnteredFromFilter').value = '';
   document.getElementById('repEnteredToFilter').value = '';
+  document.getElementById('repOpenOnlyFilter').checked = false;
   renderAll();
 }
 
@@ -1275,6 +2282,8 @@ function renderAll() {
   renderDashboard();
   renderRepDashboard();
   renderEntryRows();
+  renderLeaderboard();
+  renderSettings();
 }
 
 /* =========================================================================
@@ -1285,14 +2294,37 @@ function bindEvents() {
 
   // Dashboard filters
   ['dashboardRepFilter', 'enteredFromFilter', 'enteredToFilter', 'dashboardStageFilter', 'dashboardStateFilter']
-    .forEach(id => document.getElementById(id).addEventListener('change', renderAll));
-  document.getElementById('dashClearFilters').addEventListener('click', clearDashFilters);
+    .forEach(id => document.getElementById(id).addEventListener('change', () => { dashPreset = null; document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('primary')); renderAll(); }));
+  document.getElementById('dashClearFilters').addEventListener('click', () => { dashPreset = null; document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('primary')); clearDashFilters(); });
   document.getElementById('dashCSV').addEventListener('click', () => exportRowsToCSV('priority_pipeline_dashboard.csv', filteredOpps()));
+  document.getElementById('dashPrint').addEventListener('click', () => window.print());
+
+  // Quick filter preset buttons
+  document.querySelectorAll('[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const preset = btn.dataset.preset;
+      if (dashPreset === preset) {
+        dashPreset = null;
+        btn.classList.remove('primary');
+      } else {
+        dashPreset = preset;
+        document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('primary'));
+        btn.classList.add('primary');
+      }
+      renderAll();
+    });
+  });
 
   // Rep dashboard filters
-  ['repDashboardRepFilter', 'repEnteredFromFilter', 'repEnteredToFilter']
+  ['repDashboardRepFilter', 'repEnteredFromFilter', 'repEnteredToFilter', 'repOpenOnlyFilter']
     .forEach(id => document.getElementById(id).addEventListener('change', renderAll));
   document.getElementById('repClearFilters').addEventListener('click', clearRepFilters);
+  document.getElementById('repClosingSoon').addEventListener('click', () => {
+    document.getElementById('repOpenOnlyFilter').checked = true;
+    document.getElementById('repEnteredFromFilter').value = '';
+    document.getElementById('repEnteredToFilter').value = '';
+    renderAll();
+  });
 
   // Entry form
   document.getElementById('addContainerBtn').addEventListener('click', () => addContainerInput());
@@ -1303,13 +2335,44 @@ function bindEvents() {
   document.getElementById('newRepInput').addEventListener('keypress', e => { if (e.key === 'Enter') addSalesRep(); });
   document.getElementById('entryCSV').addEventListener('click', () => exportRowsToCSV('priority_pipeline_full.csv', state.opportunities));
 
-  // Entry table actions
-  document.getElementById('entryRows').addEventListener('click', e => {
-    const btn = e.target.closest('[data-action]');
-    if (!btn) return;
-    const tr = e.target.closest('tr[data-id]');
-    if (!tr) return;
-    if (btn.dataset.action === 'delete') deleteOpportunity(tr.dataset.id);
+  // Row clicks → open edit modal (works on all detail tables)
+  ['detailRows', 'repDetailRows', 'entryRows'].forEach(tbodyId => {
+    const el = document.getElementById(tbodyId);
+    if (!el) return;
+    el.addEventListener('click', e => {
+      // Action buttons take priority over row click
+      const btn = e.target.closest('[data-action]');
+      const tr = e.target.closest('tr[data-id]');
+      if (!tr) return;
+      if (btn) {
+        if (btn.dataset.action === 'delete') {
+          e.stopPropagation();
+          deleteOpportunity(tr.dataset.id);
+          return;
+        }
+        if (btn.dataset.action === 'edit') {
+          e.stopPropagation();
+          openEditModal(tr.dataset.id);
+          return;
+        }
+      }
+      // Whole-row click on .clickable-row
+      if (tr.classList.contains('clickable-row')) openEditModal(tr.dataset.id);
+    });
+  });
+
+  // Edit modal events
+  document.getElementById('editCloseX').addEventListener('click', closeEditModal);
+  document.getElementById('editCancelBtn').addEventListener('click', closeEditModal);
+  document.getElementById('editSaveBtn').addEventListener('click', saveEditModal);
+  document.getElementById('editDeleteBtn').addEventListener('click', deleteFromModal);
+  document.getElementById('editStage').addEventListener('change', toggleEditTimeSpentPrompt);
+  document.getElementById('editAddContainerBtn').addEventListener('click', () => addEditContainerInput());
+  document.getElementById('editModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('editModal')) closeEditModal();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeEditModal();
   });
 
   // Backup
@@ -1319,12 +2382,133 @@ function bindEvents() {
     if (e.target.files[0]) importBackup(e.target.files[0]);
     e.target.value = '';
   });
+
+  // Leaderboard filters + sort
+  ['lbFromFilter', 'lbToFilter'].forEach(id => document.getElementById(id).addEventListener('change', renderLeaderboard));
+  document.getElementById('lbClearFilters').addEventListener('click', () => {
+    document.getElementById('lbFromFilter').value = '';
+    document.getElementById('lbToFilter').value = '';
+    renderLeaderboard();
+  });
+  document.getElementById('lbCSV').addEventListener('click', () => {
+    const rows = buildRepStats();
+    const headers = ['Rep', 'Total Deals', 'Open', 'Weighted Forecast', 'Won', 'Lost', 'Win Rate %',
+                     'Lead', 'Qualification', 'Proposal', 'Negotiation',
+                     'Municipal Hrs', 'Service Issue Hrs', 'Last Activity'];
+    const data = rows.map(r => [
+      r.rep, r.total, r.open, Math.round(r.forecast), r.won, r.lost,
+      r.winRate !== null ? Math.round(r.winRate) : '',
+      r.lead, r.qual, r.prop, r.neg, r.muni.toFixed(1), r.issue.toFixed(1),
+      r.lastActivity ? r.lastActivity.slice(0, 10) : ''
+    ]);
+    const csv = [headers, ...data].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'priority_pipeline_team_leaderboard.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+  document.querySelectorAll('.leaderboard-table th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort;
+      if (lbSortBy === col) lbSortDir = lbSortDir === 'asc' ? 'desc' : 'asc';
+      else { lbSortBy = col; lbSortDir = ['rep', 'lastActivity'].includes(col) ? 'asc' : 'desc'; }
+      renderLeaderboard();
+    });
+  });
+  document.getElementById('leaderboardRows').addEventListener('click', () => {/* no-op for now */});
+  document.getElementById('lbStaleDeals').addEventListener('click', e => {
+    const card = e.target.closest('[data-id]');
+    if (card) openEditModal(card.dataset.id);
+  });
+
+  // Settings — theme picker
+  document.querySelectorAll('.theme-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      applyTheme(opt.dataset.theme);
+      renderSettings();
+    });
+  });
+  // Settings — reps
+  document.getElementById('settingsAddRep').addEventListener('click', () => {
+    const input = document.getElementById('settingsNewRep');
+    const name = input.value.trim();
+    if (!name) return;
+    if (!state.reps.includes(name)) state.reps.push(name);
+    input.value = '';
+    persist();
+    populateRepDropdowns();
+    renderAll();
+  });
+  document.getElementById('settingsNewRep').addEventListener('keypress', e => {
+    if (e.key === 'Enter') document.getElementById('settingsAddRep').click();
+  });
+  document.getElementById('settingsRepList').addEventListener('click', e => {
+    const btn = e.target.closest('.remove-rep');
+    if (!btn) return;
+    const rep = btn.dataset.rep;
+    const myDeals = state.opportunities.filter(o => o.rep === rep);
+    if (myDeals.length === 0) {
+      if (!confirm(`Remove "${rep}" from the rep list?`)) return;
+      state.reps = state.reps.filter(r => r !== rep);
+      persist();
+      populateRepDropdowns();
+      renderAll();
+      return;
+    }
+    // Reassign flow
+    const otherReps = state.reps.filter(r => r !== rep);
+    if (otherReps.length === 0) {
+      alert(`Cannot remove "${rep}" — they have ${myDeals.length} deal(s) and there's no other rep to reassign to. Add another rep first.`);
+      return;
+    }
+    const promptText = `"${rep}" has ${myDeals.length} deal(s) assigned. Pick where to reassign them:\n\n` +
+      otherReps.map((r, i) => `${i + 1}. ${r}`).join('\n') +
+      `\n\nEnter the number (1-${otherReps.length}), or "0" to keep deals assigned to "${rep}" (orphaned), or Cancel to abort.`;
+    const choice = prompt(promptText, '1');
+    if (choice === null) return;
+    const num = parseInt(choice, 10);
+    if (num === 0) {
+      if (!confirm(`Remove "${rep}" but keep their ${myDeals.length} deal(s) assigned to them (orphaned)? They won't appear in dropdowns.`)) return;
+    } else if (num >= 1 && num <= otherReps.length) {
+      const newRep = otherReps[num - 1];
+      if (!confirm(`Reassign all ${myDeals.length} deal(s) from "${rep}" → "${newRep}" and remove "${rep}"?`)) return;
+      state.opportunities.forEach(o => {
+        if (o.rep === rep) {
+          o.rep = newRep;
+          o.updatedAt = new Date().toISOString();
+          o.notes = (o.notes ? o.notes + '\n' : '') + `[Reassigned from ${rep} to ${newRep} on ${TODAY}]`;
+        }
+      });
+    } else {
+      alert('Invalid choice. Aborted.');
+      return;
+    }
+    state.reps = state.reps.filter(r => r !== rep);
+    persist();
+    populateRepDropdowns();
+    renderAll();
+    showToast(`✓ Removed "${rep}" from rep list`);
+  });
+  // Settings — data buttons
+  document.getElementById('settingsExport').addEventListener('click', exportBackup);
+  document.getElementById('settingsImport').addEventListener('click', () => document.getElementById('importFile').click());
+  document.getElementById('settingsClearData').addEventListener('click', () => {
+    if (!confirm('Delete ALL pipeline data and reset rep list? This cannot be undone (export a backup first if you want to keep it).')) return;
+    if (!confirm('Are you really sure? Last chance.')) return;
+    state = { reps: [...DEFAULT_REPS], opportunities: [] };
+    persist();
+    populateRepDropdowns();
+    renderAll();
+  });
 }
 
 /* =========================================================================
  *  INIT
  * ========================================================================= */
 function init() {
+  applyTheme(currentTheme());
   populateStaticDropdowns();
   populateRepDropdowns();
   document.getElementById('enteredInput').value = TODAY;
